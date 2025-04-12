@@ -1,6 +1,5 @@
 # D-SchedAleR
 
-# Description
 This is a repository for the implementation of a ... for a requirement in the course CMSC 125 - M.
 
 # System Requirements
