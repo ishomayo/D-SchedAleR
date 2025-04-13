@@ -1,0 +1,111 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class LobbyButtons {
+
+    private JPanel mainPanel;
+    private CardLayout layout;
+
+    public LobbyButtons(JPanel mainPanel, CardLayout layout) {
+        this.mainPanel = mainPanel;
+        this.layout = layout;
+    }
+
+    // Public method to create and configure the button panel
+    public JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setOpaque(false); // Transparent button panel
+
+        // Create buttons
+        JButton startButton = createStyledButton(CommonConstants.startDefault,
+                CommonConstants.startHover, CommonConstants.startClick, new Dimension(220, 56));
+        JButton helpButton = createStyledButton(CommonConstants.helpDefault,
+                CommonConstants.helpHover, CommonConstants.helpClick, new Dimension(220, 56));
+        JButton creditsButton = createStyledButton(CommonConstants.creditsDefault,
+                CommonConstants.creditsHover, CommonConstants.creditsClick, new Dimension(220, 56));
+        JButton exitButton = createStyledButton(CommonConstants.exitDefault,
+                CommonConstants.exitHover, CommonConstants.exitClick, new Dimension(220, 56));
+
+        startButton.setBounds(30, 160, 220, 56);
+        helpButton.setBounds(30, 216, 220, 56);
+        creditsButton.setBounds(30, 272, 220, 56);
+        exitButton.setBounds(30, 328, 220, 56);
+
+        // Add spacing and center-align
+        addButtonsToPanel(buttonPanel, startButton, helpButton, creditsButton, exitButton);
+
+        // Configure button actions
+        configureButtonActions(startButton, helpButton, creditsButton, exitButton);
+
+        return buttonPanel;
+    }
+
+    // Add buttons with spacing
+    private void addButtonsToPanel(JPanel panel, JButton... buttons) {
+        panel.add(Box.createVerticalStrut(20));
+        for (JButton button : buttons) {
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            panel.add(button);
+            panel.add(Box.createVerticalStrut(15));
+        }
+        panel.add(Box.createVerticalStrut(20));
+    }
+
+    // Add button actions
+    private void configureButtonActions(JButton startButton, JButton creditsButton,
+                                        JButton helpButton, JButton exitButton) {
+        exitButton.addActionListener(e -> System.exit(0));
+        startButton.addActionListener(e -> layout.show(mainPanel, "DataInputScreen"));
+        creditsButton.addActionListener(e -> layout.show(mainPanel, "Credits"));
+        helpButton.addActionListener(e -> layout.show(mainPanel, "Help"));
+    }
+
+    // Button styling helper
+    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath,
+                                              String clickIconPath, Dimension size) {
+        JButton button = new JButton();
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setPreferredSize(size);
+
+        ImageIcon defaultIcon = scaleImage(defaultIconPath, size);
+        ImageIcon hoverIcon = scaleImage(hoverIconPath, size);
+        ImageIcon clickIcon = scaleImage(clickIconPath, size);
+
+        button.setIcon(defaultIcon);
+
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(hoverIcon);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(defaultIcon);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                button.setIcon(clickIcon);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(hoverIcon);
+            }
+        });
+
+        return button;
+    }
+
+    // Scale image helper
+    private static ImageIcon scaleImage(String path, Dimension size) {
+        ImageIcon icon = new ImageIcon(path);
+        Image img = icon.getImage().getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
+    }
+}
