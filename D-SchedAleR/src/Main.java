@@ -26,8 +26,8 @@ public class Main extends JFrame{
 
     public static void startApplication() {
         SwingUtilities.invokeLater(() -> {
-            Main app = new Main();
-            app.setVisible(true);
+            Main main = new Main();
+            main.setVisible(true);
         });
     }
 
