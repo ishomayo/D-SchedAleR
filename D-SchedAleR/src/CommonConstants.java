@@ -42,6 +42,13 @@ public class CommonConstants {
     // File paths using the determined BASE_PATH
     public static final String splashScreen = BASE_PATH + "splash.gif";
     public static final String lobbyBG = BASE_PATH + "lobby.jpg";
+    public static final String dataMethodBG = BASE_PATH + "generate-data.png";
+    public static final String algoSelectBG = BASE_PATH + "algo-select.png";
+
+    public static final String randomDataMethodBG = BASE_PATH + "random.png";
+    public static final String randomGeneratedMethodBG = BASE_PATH + "random-generated.png";
+    public static final String userDataMethodBG = BASE_PATH + "user.png";
+    public static final String fileDataMethodBG = BASE_PATH + "file.png";
 
     public static final String startDefault = BASE_PATH + "start-default.png";
     public static final String startHover = BASE_PATH + "start-hover.png";
@@ -59,6 +66,57 @@ public class CommonConstants {
     public static final String exitHover = BASE_PATH + "exit-hover.png";
     public static final String exitClick = BASE_PATH + "exit-click.png";
 
+    public static final String randomDefault = BASE_PATH + "random-default.png";
+    public static final String randomHover = BASE_PATH + "random-hover.png";
+    public static final String randomClick = BASE_PATH + "random-click.png";
+
+    public static final String userDefault = BASE_PATH + "user-default.png";
+    public static final String userHover = BASE_PATH + "user-hover.png";
+    public static final String userClick = BASE_PATH + "user-click.png";
+
+    public static final String fileDefault = BASE_PATH + "file-default.png";
+    public static final String fileHover = BASE_PATH + "file-hover.png";
+    public static final String fileClick = BASE_PATH + "file-click.png";
+
+    public static final String backDefault = BASE_PATH + "back-default.png";
+    public static final String backHover = BASE_PATH + "back-hover.png";
+    public static final String backClick = BASE_PATH + "back-click.png";
+
+    public static final String generateDefault = BASE_PATH + "generate-default.png";
+    public static final String generateHover = BASE_PATH + "generate-hover.png";
+    public static final String generateClick = BASE_PATH + "generate-click.png";
+
+    public static final String continueDefault = BASE_PATH + "continue-default.png";
+    public static final String continueHover = BASE_PATH + "continue-hover.png";
+    public static final String continueClick = BASE_PATH + "continue-click.png";
+
+    public static final String fcfsDefault = BASE_PATH + "fcfs-default.png";
+    public static final String fcfsHover = BASE_PATH + "fcfs-hover.png";
+    public static final String fcfsClick = BASE_PATH + "fcfs-click.png";
+
+    public static final String sstfDefault = BASE_PATH + "sstf-default.png";
+    public static final String sstfHover = BASE_PATH + "sstf-hover.png";
+    public static final String sstfClick = BASE_PATH + "sstf-click.png";
+
+    public static final String scanDefault = BASE_PATH + "scan-default.png";
+    public static final String scanHover = BASE_PATH + "scan-hover.png";
+    public static final String scanClick = BASE_PATH + "scan-click.png";
+    
+    public static final String cscanDefault = BASE_PATH + "cscan-default.png";
+    public static final String cscanHover = BASE_PATH + "cscan-hover.png";
+    public static final String cscanClick = BASE_PATH + "cscan-click.png";
+
+    public static final String lookDefault = BASE_PATH + "look-default.png";
+    public static final String lookHover = BASE_PATH + "look-hover.png";    
+    public static final String lookClick = BASE_PATH + "look-click.png";
+
+    public static final String clookDefault = BASE_PATH + "clook-default.png";
+    public static final String clookHover = BASE_PATH + "clook-hover.png";
+    public static final String clookClick = BASE_PATH + "clook-click.png";
+
+    public static final String simulateALLDefault = BASE_PATH + "simulateALL-default.png";
+    public static final String simulateALLHover = BASE_PATH + "simulateALL-hover.png";
+    public static final String simulateALLClick = BASE_PATH + "simulateALL-click.png";
 
     // Utility method to load images properly
     public static Image loadImage(String path) {

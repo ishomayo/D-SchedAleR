@@ -53,6 +53,12 @@ public class Main extends JFrame{
         startButton.setBounds(30, 160, 220, 56);
         lobbyPanel.add(startButton);
 
+        startButton.addActionListener(e -> {
+            DataMethod DataMethodPanel = new DataMethod(this, layout, mainPanel, width, height);
+            mainPanel.add(DataMethodPanel, "SelectDataMethod");
+            layout.show(mainPanel, "SelectDataMethod");
+        });
+
         JButton helpButton = createStyledButton(CommonConstants.helpDefault,
         CommonConstants.helpHover, CommonConstants.helpClick, new Dimension(220, 56));
         helpButton.setBounds(30, 216, 220, 56);
