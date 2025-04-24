@@ -1,15 +1,22 @@
 import javax.swing.*;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.util.ArrayList;
+import javax.swing.text.*;
+
 
 public class DataMethod extends JPanel {
 
     private JPanel mainPanel;
     private CardLayout layout;
     private Main main;
-    public final Image backgroundImage;
+    public Image backgroundImage;
     private int width, height, queueLength, headStart;
     private java.util.List<Integer> requestQueue;
     private String direction;
@@ -48,6 +55,7 @@ public class DataMethod extends JPanel {
         add(backButton);
 
         randomButton.addActionListener(e -> showRandom());
+        userInputButton.addActionListener(e -> showUserInput());
         backButton.addActionListener(e -> layout.show(mainPanel, "Lobby"));
     }
 
@@ -176,6 +184,210 @@ public class DataMethod extends JPanel {
         }
         requestQueueArea.setText(sb.toString());
     }
+
+    public void showUserInput() {
+        // Mutable reference for background image
+        backgroundImage = CommonConstants.loadImage(CommonConstants.userDataMethodBG);
+    
+        JPanel userInputPanel = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        userInputPanel.setOpaque(false);
+    
+        // Create and configure the "Back" button
+        JButton backButton = createStyledButton(CommonConstants.backDefault,
+                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+        backButton.setBounds(37, 625, 220, 56);
+        userInputPanel.add(backButton);
+        
+        // Create and configure the "Continue" button
+        JButton continueButton = createStyledButton(CommonConstants.continueDefault,
+                CommonConstants.continueHover, CommonConstants.continueClick, new Dimension(220, 56));
+        continueButton.setBounds(992, 565, 220, 70);
+        continueButton.setEnabled(false);
+        userInputPanel.add(continueButton);
+    
+        // Action: Back to Lobby + restore original background
+        backButton.addActionListener(e -> {
+            layout.show(mainPanel, "Lobby");
+        });
+
+        continueButton.addActionListener(e -> {
+            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
+            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
+            layout.show(mainPanel, "AlgorithmSelection");
+        });
+
+        // // Font settings
+        Font labelFont = new Font("Arial", Font.BOLD, 22); // Or "Montserrat" if installed
+        Font textAreaFont = new Font("Arial", Font.BOLD, 24);
+        Font directionFont = new Font("Arial", Font.BOLD, 20);
+
+
+        // Create and configure a JLabel to display the queue length
+        JTextField queueLengthField = new JTextField();
+        queueLengthField.setFont(labelFont);
+        queueLengthField.setForeground(Color.BLACK);
+        queueLengthField.setBounds(327, 205, 110, 55);
+        queueLengthField.setBackground(Color.decode("#e7e7e7"));
+        queueLengthField.setBorder(BorderFactory.createEmptyBorder());   
+        queueLengthField.setFocusTraversalKeysEnabled(false);
+        queueLengthField.setCaretColor(Color.BLACK);
+        userInputPanel.add(queueLengthField);
+
+        // Add DocumentFilter to limit input to 2 digits
+        ((AbstractDocument) queueLengthField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + string;
+                if (newText.matches("\\d{0,2}")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+
+                String oldText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = oldText.substring(0, offset) + text + oldText.substring(offset + length);
+                if (newText.matches("\\d{0,2}")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
+        // // Create and configure a JLabel to display the head start position
+        JTextField headStartLabelField = new JTextField();
+        headStartLabelField.setFont(labelFont);
+        headStartLabelField.setForeground(Color.BLACK);
+        headStartLabelField.setBounds(325, 362, 110, 55);
+        headStartLabelField.setBackground(Color.decode("#e7e7e7"));
+        headStartLabelField.setBorder(BorderFactory.createEmptyBorder());   
+        headStartLabelField.setFocusTraversalKeysEnabled(false);
+        headStartLabelField.setCaretColor(Color.BLACK);
+        userInputPanel.add(headStartLabelField);
+
+        // Limit input to 3 digits
+        ((AbstractDocument) headStartLabelField.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string == null) return;
+
+                String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + string;
+                if (newText.matches("\\d{0,3}")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text == null) return;
+
+                String oldText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String newText = oldText.substring(0, offset) + text + oldText.substring(offset + length);
+                if (newText.matches("\\d{0,3}")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
+        JComboBox<String> directionBox = new JComboBox<>(new String[] { "LEFT", "RIGHT" });
+        directionBox.setFont(directionFont);
+        directionBox.setForeground(Color.BLACK);
+        directionBox.setBounds(315, 514, 145, 68);
+        directionBox.setBackground(Color.decode("#e7e7e7"));
+        directionBox.setBorder(BorderFactory.createEmptyBorder());   
+        directionBox.setFocusTraversalKeysEnabled(false);
+        userInputPanel.add(directionBox);
+
+        JTextArea requestQueueField = new JTextArea();
+        requestQueueField.setFont(labelFont);
+        requestQueueField.setForeground(Color.BLACK);
+        requestQueueField.setBounds(743, 205, 457, 210);
+        requestQueueField.setBackground(Color.decode("#e7e7e7"));
+        requestQueueField.setCaretColor(Color.BLACK);
+        // requestQueueField.setFocusTraversalKeysEnabled(false);
+        requestQueueField.setMargin(new Insets(5, 5, 0, 0)); // Top-left padding
+        requestQueueField.setLineWrap(true);
+        requestQueueField.setWrapStyleWord(true);
+        requestQueueField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        requestQueueField.setBorder(BorderFactory.createEmptyBorder());
+        userInputPanel.add(requestQueueField);
+
+        // Placeholder behavior
+        requestQueueField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (requestQueueField.getText().equals("Values are from 0 to 199")) {
+                    requestQueueField.setText("");
+                    requestQueueField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (requestQueueField.getText().trim().isEmpty()) {
+                    requestQueueField.setForeground(Color.GRAY);
+                    requestQueueField.setText("Values are from 0 to 199");
+                }
+            }
+        });
+
+        requestQueueField.getDocument().addDocumentListener(new DocumentListener() {
+            private void validateInput() {
+                String text = requestQueueField.getText().trim();
+                if (text.equals("Values are from 0 to 199")) return;
+        
+                String[] tokens = text.split("\\s+");
+                int expectedLength;
+                try {
+                    expectedLength = Integer.parseInt(queueLengthField.getText().trim());
+                } catch (NumberFormatException e) {
+                    continueButton.setEnabled(false);
+                    return;
+                }
+        
+                if (tokens.length != expectedLength) {
+                    continueButton.setEnabled(false);
+                    return;
+                }
+        
+                for (String token : tokens) {
+                    try {
+                        int num = Integer.parseInt(token);
+                        if (num < 0 || num > 199) {
+                            continueButton.setEnabled(false);
+                            return;
+                        }
+                    } catch (NumberFormatException e) {
+                        continueButton.setEnabled(false);
+                        return;
+                    }
+                }
+        
+                continueButton.setEnabled(true); // All checks passed
+            }
+        
+            @Override public void insertUpdate(DocumentEvent e) { validateInput(); }
+            @Override public void removeUpdate(DocumentEvent e) { validateInput(); }
+            @Override public void changedUpdate(DocumentEvent e) { validateInput(); }
+        });
+
+        setQueueLengthFromField(queueLengthField);
+        setHeadStartFromField(headStartLabelField);
+        setDirectionFromBox(directionBox);
+        setRequestQueueFromField(requestQueueField);
+        
+        mainPanel.add(userInputPanel, "UserInputScreen");
+        layout.show(mainPanel, "UserInputScreen");
+    }
     
     // Getter for queue length
     public int getQueueLength() {
@@ -196,6 +408,54 @@ public class DataMethod extends JPanel {
     public String getDirection() {
         return direction;
     }
+
+    // Setter for queue length
+    public void setQueueLengthFromField(JTextField queueLengthField) {
+        try {
+            this.queueLength = Integer.parseInt(queueLengthField.getText().trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid queue length input");
+            this.queueLength = 0; // or some fallback
+        }
+    }
+
+    // Setter for head start position
+    public void setHeadStartFromField(JTextField headStartField) {
+        try {
+            this.headStart = Integer.parseInt(headStartField.getText().trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid head start input");
+            this.headStart = 0;
+        }
+    }
+
+    // Setter for direction (from JComboBox)
+    public void setDirectionFromBox(JComboBox<String> directionBox) {
+        Object selected = directionBox.getSelectedItem();
+        this.direction = selected != null ? selected.toString() : "N/A";
+    }
+
+    // Setter for request queue (values must be separated by space)
+    public void setRequestQueueFromField(JTextArea requestQueueField) {
+        this.requestQueue = new ArrayList<>();
+        String text = requestQueueField.getText().trim();
+        if (!text.isEmpty()) {
+            String[] tokens = text.split("\\s+");
+            for (String token : tokens) {
+                try {
+                    int value = Integer.parseInt(token);
+                    if (value >= 0 && value <= 199) {
+                        this.requestQueue.add(value);
+                    } else {
+                        System.err.println("Invalid value in request queue: " + value);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Non-numeric value in request queue: " + token);
+                }
+            }
+        }
+    }
+
     
 
     //*******************************************************

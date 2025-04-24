@@ -47,7 +47,7 @@ public class CommonConstants {
 
     public static final String randomDataMethodBG = BASE_PATH + "random.png";
     public static final String randomGeneratedMethodBG = BASE_PATH + "random-generated.png";
-    public static final String userDataMethodBG = BASE_PATH + "user.png";
+    public static final String userDataMethodBG = BASE_PATH + "user-input.png";
     public static final String fileDataMethodBG = BASE_PATH + "file.png";
 
     public static final String startDefault = BASE_PATH + "start-default.png";
