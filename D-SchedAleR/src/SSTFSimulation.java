@@ -29,7 +29,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class FCFSSimulation extends JPanel {
+public class SSTFSimulation extends JPanel {
     private JPanel mainPanel;
     private CardLayout layout;
     private Main main;
@@ -54,7 +54,7 @@ public class FCFSSimulation extends JPanel {
     private Timer displayTimer;
     private List<Point> animationPoints = new ArrayList<>();
 
-    public FCFSSimulation(Main main, CardLayout layout, JPanel mainPanel, int width, int height,
+    public SSTFSimulation(Main main, CardLayout layout, JPanel mainPanel, int width, int height,
             List<Integer> requestQueue, int headStart, String direction) {
         this.main = main;
         this.layout = layout;
@@ -67,10 +67,172 @@ public class FCFSSimulation extends JPanel {
 
         setSize(width, height);
         setLayout(null);
-        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_FCFS);
+        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_SSTF);  // You might want to update this constant
 
         createUI();
-        calculateFCFS();
+        calculateSSTF();
+    }
+
+    /**
+     * Creates a custom styled slider with transparent background
+     */
+    private JSlider createCustomSlider(int min, int max, int value) {
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, value) {
+            @Override
+            public void updateUI() {
+                setUI(new CustomSliderUI(this));
+                updateLabelUIs();
+            }
+
+            // Override to ensure the component is fully transparent
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Don't call super.paintComponent to avoid background painting
+                // Only call UI's paint methods that we've customized
+                if (getUI() != null) {
+                    // Let the UI delegate paint
+                    getUI().paint(g, this);
+                }
+            }
+        };
+
+        // Remove ticks and labels that come by default
+        slider.setPaintTicks(false);
+        slider.setPaintLabels(false);
+
+        // Make the slider transparent
+        slider.setOpaque(false);
+        slider.setBackground(new Color(0, 0, 0, 0)); // Fully transparent
+
+        return slider;
+    }
+
+    /**
+     * Custom UI for the slider component with transparent background
+     */
+    class CustomSliderUI extends javax.swing.plaf.basic.BasicSliderUI {
+
+        public CustomSliderUI(JSlider slider) {
+            super(slider);
+        }
+
+        @Override
+        public void paint(Graphics g, JComponent c) {
+            // Only paint the specific parts we want (track and thumb)
+            paintTrack(g);
+            paintThumb(g);
+            // Deliberately omit painting other parts
+        }
+
+        @Override
+        public void paintTrack(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = slider.getWidth();
+            int height = slider.getHeight();
+            int trackHeight = 4;
+
+            // Draw the track - black line
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(trackHeight));
+            g2d.drawLine(0, height / 2, width, height / 2);
+        }
+
+        @Override
+        public void paintThumb(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Rectangle thumbBounds = thumbRect;
+
+            // Create a red filled circle for the thumb
+            g2d.setColor(Color.RED);
+            int diameter = 16; // Size of the circular thumb
+            int x = thumbBounds.x + (thumbBounds.width - diameter) / 2;
+            int y = thumbBounds.y + (thumbBounds.height - diameter) / 2;
+            g2d.fillOval(x, y, diameter, diameter);
+        }
+
+        @Override
+        protected Dimension getThumbSize() {
+            // Make the thumb area larger to make it easier to grab
+            return new Dimension(20, 20);
+        }
+    }
+
+
+    private JButton createOblongButton(String text, int width, int height) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+                // Choose background color based on button state
+                if (!isEnabled()) {
+                    // Distinctive gray for disabled state
+                    g2.setColor(new Color(220, 220, 220));
+                } else if (getModel().isPressed()) {
+                    // Darker background when pressed
+                    g2.setColor(new Color(200, 200, 200));
+                } else if (getModel().isRollover()) {
+                    // Slightly lighter background when hovered
+                    g2.setColor(new Color(240, 240, 240));
+                } else {
+                    // Default background
+                    g2.setColor(Color.WHITE);
+                }
+
+                // Draw rounded rectangle background
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
+
+                // Draw border (light gray for disabled)
+                if (!isEnabled()) {
+                    g2.setColor(new Color(180, 180, 180)); // Lighter border for disabled
+                } else {
+                    g2.setColor(Color.BLACK);
+                }
+                g2.setStroke(new BasicStroke(1.0f));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
+
+                // Text settings - ensure perfect centering
+                Font buttonFont = new Font("Arial", Font.BOLD, 14);
+                g2.setFont(buttonFont);
+
+                FontMetrics metrics = g2.getFontMetrics(buttonFont);
+                int textWidth = metrics.stringWidth(getText());
+                int textHeight = metrics.getHeight();
+
+                // Calculate exact center position
+                int x = (getWidth() - textWidth) / 2;
+                int y = (getHeight() - textHeight) / 2 + metrics.getAscent();
+
+                // Draw text (gray for disabled)
+                if (!isEnabled()) {
+                    g2.setColor(new Color(150, 150, 150)); // Gray text for disabled
+                } else {
+                    g2.setColor(Color.BLACK);
+                }
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+
+            // Override getPreferredSize to ensure the button has the right dimensions
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(width, height);
+            }
+        };
+
+        // Set button properties
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+
+        return button;
     }
 
     private void createUI() {
@@ -399,22 +561,38 @@ public class FCFSSimulation extends JPanel {
         return image;
     }
 
-    private void calculateFCFS() {
+    private void calculateSSTF() {
+        // Implementation of Shortest Seek Time First algorithm
         StringBuilder sequence = new StringBuilder();
         totalSeekTime = 0;
         totalHeadMovements = requestQueue.size();
 
         int currentPosition = headStart;
 
-        // Create a list of positions in FCFS order
+        // Create a list to store the sequence of positions
         List<Integer> positions = new ArrayList<>();
         positions.add(currentPosition); // Add starting position
 
-        for (Integer request : requestQueue) {
-            positions.add(request);
-            sequence.append(request).append(", ");
-            totalSeekTime += Math.abs(currentPosition - request);
-            currentPosition = request;
+        // Create a copy of the request queue to work with
+        List<Integer> remainingRequests = new ArrayList<>(requestQueue);
+
+        // Process all requests
+        while (!remainingRequests.isEmpty()) {
+            // Find the closest request to the current head position
+            int closestRequest = findClosestRequest(currentPosition, remainingRequests);
+            
+            // Add the closest request to the sequence
+            positions.add(closestRequest);
+            sequence.append(closestRequest).append(", ");
+            
+            // Update total seek time
+            totalSeekTime += Math.abs(currentPosition - closestRequest);
+            
+            // Move head to this position
+            currentPosition = closestRequest;
+            
+            // Remove this request from the remaining list
+            remainingRequests.remove(Integer.valueOf(closestRequest));
         }
 
         // Update fields
@@ -431,6 +609,28 @@ public class FCFSSimulation extends JPanel {
         // Draw the graph
         graphPanel.setPositions(positions);
         graphPanel.repaint();
+    }
+
+    /**
+     * Helper method to find the request closest to the current head position
+     */
+    private int findClosestRequest(int currentPosition, List<Integer> requests) {
+        int closestRequest = requests.get(0);
+        int minDistance = Math.abs(currentPosition - closestRequest);
+        
+        for (int i = 1; i < requests.size(); i++) {
+            int request = requests.get(i);
+            int distance = Math.abs(currentPosition - request);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestRequest = request;
+            }
+            // In case of a tie, we could implement a tie-breaking strategy here
+            // For example, prefer the one in the current direction of head movement
+        }
+        
+        return closestRequest;
     }
 
     private void prepareAnimationPoints(List<Integer> positions) {
@@ -660,7 +860,6 @@ public class FCFSSimulation extends JPanel {
         }
     }
 
-    // Updated GraphPanel with better spacing for the ruler
     class GraphPanel extends JPanel {
         private List<Integer> positions = new ArrayList<>();
         private int currentStep = 0;
@@ -825,167 +1024,6 @@ public class FCFSSimulation extends JPanel {
 
             // Restore the original color
             g2d.setColor(originalColor);
-        }
-    }
-
-    private JButton createOblongButton(String text, int width, int height) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-                // Choose background color based on button state
-                if (!isEnabled()) {
-                    // Distinctive gray for disabled state
-                    g2.setColor(new Color(220, 220, 220));
-                } else if (getModel().isPressed()) {
-                    // Darker background when pressed
-                    g2.setColor(new Color(200, 200, 200));
-                } else if (getModel().isRollover()) {
-                    // Slightly lighter background when hovered
-                    g2.setColor(new Color(240, 240, 240));
-                } else {
-                    // Default background
-                    g2.setColor(Color.WHITE);
-                }
-
-                // Draw rounded rectangle background
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
-
-                // Draw border (light gray for disabled)
-                if (!isEnabled()) {
-                    g2.setColor(new Color(180, 180, 180)); // Lighter border for disabled
-                } else {
-                    g2.setColor(Color.BLACK);
-                }
-                g2.setStroke(new BasicStroke(1.0f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
-
-                // Text settings - ensure perfect centering
-                Font buttonFont = new Font("Arial", Font.BOLD, 14);
-                g2.setFont(buttonFont);
-
-                FontMetrics metrics = g2.getFontMetrics(buttonFont);
-                int textWidth = metrics.stringWidth(getText());
-                int textHeight = metrics.getHeight();
-
-                // Calculate exact center position
-                int x = (getWidth() - textWidth) / 2;
-                int y = (getHeight() - textHeight) / 2 + metrics.getAscent();
-
-                // Draw text (gray for disabled)
-                if (!isEnabled()) {
-                    g2.setColor(new Color(150, 150, 150)); // Gray text for disabled
-                } else {
-                    g2.setColor(Color.BLACK);
-                }
-                g2.drawString(getText(), x, y);
-                g2.dispose();
-            }
-
-            // Override getPreferredSize to ensure the button has the right dimensions
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(width, height);
-            }
-        };
-
-        // Set button properties
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setOpaque(false);
-
-        return button;
-    }
-
-    /**
-     * Creates a custom styled slider with transparent background
-     */
-    private JSlider createCustomSlider(int min, int max, int value) {
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, value) {
-            @Override
-            public void updateUI() {
-                setUI(new CustomSliderUI(this));
-                updateLabelUIs();
-            }
-
-            // Override to ensure the component is fully transparent
-            @Override
-            protected void paintComponent(Graphics g) {
-                // Don't call super.paintComponent to avoid background painting
-                // Only call UI's paint methods that we've customized
-                if (getUI() != null) {
-                    // Let the UI delegate paint
-                    getUI().paint(g, this);
-                }
-            }
-        };
-
-        // Remove ticks and labels that come by default
-        slider.setPaintTicks(false);
-        slider.setPaintLabels(false);
-
-        // Make the slider transparent
-        slider.setOpaque(false);
-        slider.setBackground(new Color(0, 0, 0, 0)); // Fully transparent
-
-        return slider;
-    }
-
-    /**
-     * Custom UI for the slider component with transparent background
-     */
-    class CustomSliderUI extends javax.swing.plaf.basic.BasicSliderUI {
-
-        public CustomSliderUI(JSlider slider) {
-            super(slider);
-        }
-
-        @Override
-        public void paint(Graphics g, JComponent c) {
-            // Only paint the specific parts we want (track and thumb)
-            paintTrack(g);
-            paintThumb(g);
-            // Deliberately omit painting other parts
-        }
-
-        @Override
-        public void paintTrack(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int width = slider.getWidth();
-            int height = slider.getHeight();
-            int trackHeight = 4;
-
-            // Draw the track - black line
-            g2d.setColor(Color.BLACK);
-            g2d.setStroke(new BasicStroke(trackHeight));
-            g2d.drawLine(0, height / 2, width, height / 2);
-        }
-
-        @Override
-        public void paintThumb(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Rectangle thumbBounds = thumbRect;
-
-            // Create a red filled circle for the thumb
-            g2d.setColor(Color.RED);
-            int diameter = 16; // Size of the circular thumb
-            int x = thumbBounds.x + (thumbBounds.width - diameter) / 2;
-            int y = thumbBounds.y + (thumbBounds.height - diameter) / 2;
-            g2d.fillOval(x, y, diameter, diameter);
-        }
-
-        @Override
-        protected Dimension getThumbSize() {
-            // Make the thumb area larger to make it easier to grab
-            return new Dimension(20, 20);
         }
     }
 

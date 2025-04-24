@@ -7,6 +7,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class FCFSSimulation extends JPanel {
+public class SCANSimulation extends JPanel {
     private JPanel mainPanel;
     private CardLayout layout;
     private Main main;
@@ -53,8 +54,9 @@ public class FCFSSimulation extends JPanel {
     private long elapsedTime = 0;
     private Timer displayTimer;
     private List<Point> animationPoints = new ArrayList<>();
+    private final int MAX_DISK_SIZE = 199; // Maximum disk position (0-199)
 
-    public FCFSSimulation(Main main, CardLayout layout, JPanel mainPanel, int width, int height,
+    public SCANSimulation(Main main, CardLayout layout, JPanel mainPanel, int width, int height,
             List<Integer> requestQueue, int headStart, String direction) {
         this.main = main;
         this.layout = layout;
@@ -67,10 +69,171 @@ public class FCFSSimulation extends JPanel {
 
         setSize(width, height);
         setLayout(null);
-        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_FCFS);
+        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_SCAN);
 
         createUI();
-        calculateFCFS();
+        calculateSCAN();
+    }
+
+    /**
+     * Creates a custom styled slider with transparent background
+     */
+    private JSlider createCustomSlider(int min, int max, int value) {
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, value) {
+            @Override
+            public void updateUI() {
+                setUI(new CustomSliderUI(this));
+                updateLabelUIs();
+            }
+
+            // Override to ensure the component is fully transparent
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Don't call super.paintComponent to avoid background painting
+                // Only call UI's paint methods that we've customized
+                if (getUI() != null) {
+                    // Let the UI delegate paint
+                    getUI().paint(g, this);
+                }
+            }
+        };
+
+        // Remove ticks and labels that come by default
+        slider.setPaintTicks(false);
+        slider.setPaintLabels(false);
+
+        // Make the slider transparent
+        slider.setOpaque(false);
+        slider.setBackground(new Color(0, 0, 0, 0)); // Fully transparent
+
+        return slider;
+    }
+
+    /**
+     * Custom UI for the slider component with transparent background
+     */
+    class CustomSliderUI extends javax.swing.plaf.basic.BasicSliderUI {
+
+        public CustomSliderUI(JSlider slider) {
+            super(slider);
+        }
+
+        @Override
+        public void paint(Graphics g, JComponent c) {
+            // Only paint the specific parts we want (track and thumb)
+            paintTrack(g);
+            paintThumb(g);
+            // Deliberately omit painting other parts
+        }
+
+        @Override
+        public void paintTrack(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int width = slider.getWidth();
+            int height = slider.getHeight();
+            int trackHeight = 4;
+
+            // Draw the track - black line
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(trackHeight));
+            g2d.drawLine(0, height / 2, width, height / 2);
+        }
+
+        @Override
+        public void paintThumb(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Rectangle thumbBounds = thumbRect;
+
+            // Create a red filled circle for the thumb
+            g2d.setColor(Color.RED);
+            int diameter = 16; // Size of the circular thumb
+            int x = thumbBounds.x + (thumbBounds.width - diameter) / 2;
+            int y = thumbBounds.y + (thumbBounds.height - diameter) / 2;
+            g2d.fillOval(x, y, diameter, diameter);
+        }
+
+        @Override
+        protected Dimension getThumbSize() {
+            // Make the thumb area larger to make it easier to grab
+            return new Dimension(20, 20);
+        }
+    }
+
+    private JButton createOblongButton(String text, int width, int height) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+                // Choose background color based on button state
+                if (!isEnabled()) {
+                    // Distinctive gray for disabled state
+                    g2.setColor(new Color(220, 220, 220));
+                } else if (getModel().isPressed()) {
+                    // Darker background when pressed
+                    g2.setColor(new Color(200, 200, 200));
+                } else if (getModel().isRollover()) {
+                    // Slightly lighter background when hovered
+                    g2.setColor(new Color(240, 240, 240));
+                } else {
+                    // Default background
+                    g2.setColor(Color.WHITE);
+                }
+
+                // Draw rounded rectangle background
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
+
+                // Draw border (light gray for disabled)
+                if (!isEnabled()) {
+                    g2.setColor(new Color(180, 180, 180)); // Lighter border for disabled
+                } else {
+                    g2.setColor(Color.BLACK);
+                }
+                g2.setStroke(new BasicStroke(1.0f));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
+
+                // Text settings - ensure perfect centering
+                Font buttonFont = new Font("Arial", Font.BOLD, 14);
+                g2.setFont(buttonFont);
+
+                FontMetrics metrics = g2.getFontMetrics(buttonFont);
+                int textWidth = metrics.stringWidth(getText());
+                int textHeight = metrics.getHeight();
+
+                // Calculate exact center position
+                int x = (getWidth() - textWidth) / 2;
+                int y = (getHeight() - textHeight) / 2 + metrics.getAscent();
+
+                // Draw text (gray for disabled)
+                if (!isEnabled()) {
+                    g2.setColor(new Color(150, 150, 150)); // Gray text for disabled
+                } else {
+                    g2.setColor(Color.BLACK);
+                }
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+
+            // Override getPreferredSize to ensure the button has the right dimensions
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(width, height);
+            }
+        };
+
+        // Set button properties
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+
+        return button;
     }
 
     private void createUI() {
@@ -399,22 +562,99 @@ public class FCFSSimulation extends JPanel {
         return image;
     }
 
-    private void calculateFCFS() {
+    private void calculateSCAN() {
+        // Implementation of SCAN algorithm (Elevator algorithm)
         StringBuilder sequence = new StringBuilder();
         totalSeekTime = 0;
-        totalHeadMovements = requestQueue.size();
+        totalHeadMovements = 0;
 
         int currentPosition = headStart;
 
-        // Create a list of positions in FCFS order
+        // Create a list to store the sequence of positions
         List<Integer> positions = new ArrayList<>();
         positions.add(currentPosition); // Add starting position
 
-        for (Integer request : requestQueue) {
-            positions.add(request);
-            sequence.append(request).append(", ");
-            totalSeekTime += Math.abs(currentPosition - request);
-            currentPosition = request;
+        // Create a copy of the request queue
+        List<Integer> sortedRequests = new ArrayList<>(requestQueue);
+
+        // Sort all requests in ascending order
+        Collections.sort(sortedRequests);
+
+        // Find requests that are greater than or equal to current position
+        int index = 0;
+        while (index < sortedRequests.size() && sortedRequests.get(index) < currentPosition) {
+            index++;
+        }
+
+        // Determine the initial direction (default to moving toward larger cylinder
+        // numbers)
+        boolean movingTowardsLarger = "right".equalsIgnoreCase(direction) ||
+                (!"left".equalsIgnoreCase(direction) && index < sortedRequests.size());
+
+        // First phase: Handle requests in the initial direction and move to the disk
+        // end
+        if (movingTowardsLarger) {
+            // Moving towards larger cylinder numbers (right/upward)
+            for (int i = index; i < sortedRequests.size(); i++) {
+                int request = sortedRequests.get(i);
+                positions.add(request);
+                sequence.append(request).append(", ");
+                totalSeekTime += Math.abs(currentPosition - request);
+                currentPosition = request;
+                totalHeadMovements++;
+            }
+
+            // Always go to the end of the disk (MAX_DISK_SIZE) - true SCAN behavior
+            if (currentPosition < MAX_DISK_SIZE) {
+                positions.add(MAX_DISK_SIZE);
+                sequence.append(MAX_DISK_SIZE).append(", ");
+                totalSeekTime += Math.abs(currentPosition - MAX_DISK_SIZE);
+                currentPosition = MAX_DISK_SIZE;
+                totalHeadMovements++;
+            }
+
+            // Second phase: Handle the remaining requests in reverse direction
+            for (int i = sortedRequests.size() - 1; i >= 0; i--) {
+                int request = sortedRequests.get(i);
+                if (request < currentPosition && !positions.contains(request)) {
+                    positions.add(request);
+                    sequence.append(request).append(", ");
+                    totalSeekTime += Math.abs(currentPosition - request);
+                    currentPosition = request;
+                    totalHeadMovements++;
+                }
+            }
+        } else {
+            // Moving towards smaller cylinder numbers (left/downward)
+            for (int i = index - 1; i >= 0; i--) {
+                int request = sortedRequests.get(i);
+                positions.add(request);
+                sequence.append(request).append(", ");
+                totalSeekTime += Math.abs(currentPosition - request);
+                currentPosition = request;
+                totalHeadMovements++;
+            }
+
+            // Always go to the beginning of the disk (0) - true SCAN behavior
+            if (currentPosition > 0) {
+                positions.add(0);
+                sequence.append(0).append(", ");
+                totalSeekTime += Math.abs(currentPosition - 0);
+                currentPosition = 0;
+                totalHeadMovements++;
+            }
+
+            // Second phase: Handle the remaining requests in reverse direction
+            for (int i = 0; i < sortedRequests.size(); i++) {
+                int request = sortedRequests.get(i);
+                if (request > currentPosition && !positions.contains(request)) {
+                    positions.add(request);
+                    sequence.append(request).append(", ");
+                    totalSeekTime += Math.abs(currentPosition - request);
+                    currentPosition = request;
+                    totalHeadMovements++;
+                }
+            }
         }
 
         // Update fields
@@ -827,166 +1067,4 @@ public class FCFSSimulation extends JPanel {
             g2d.setColor(originalColor);
         }
     }
-
-    private JButton createOblongButton(String text, int width, int height) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-                // Choose background color based on button state
-                if (!isEnabled()) {
-                    // Distinctive gray for disabled state
-                    g2.setColor(new Color(220, 220, 220));
-                } else if (getModel().isPressed()) {
-                    // Darker background when pressed
-                    g2.setColor(new Color(200, 200, 200));
-                } else if (getModel().isRollover()) {
-                    // Slightly lighter background when hovered
-                    g2.setColor(new Color(240, 240, 240));
-                } else {
-                    // Default background
-                    g2.setColor(Color.WHITE);
-                }
-
-                // Draw rounded rectangle background
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
-
-                // Draw border (light gray for disabled)
-                if (!isEnabled()) {
-                    g2.setColor(new Color(180, 180, 180)); // Lighter border for disabled
-                } else {
-                    g2.setColor(Color.BLACK);
-                }
-                g2.setStroke(new BasicStroke(1.0f));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, height, height);
-
-                // Text settings - ensure perfect centering
-                Font buttonFont = new Font("Arial", Font.BOLD, 14);
-                g2.setFont(buttonFont);
-
-                FontMetrics metrics = g2.getFontMetrics(buttonFont);
-                int textWidth = metrics.stringWidth(getText());
-                int textHeight = metrics.getHeight();
-
-                // Calculate exact center position
-                int x = (getWidth() - textWidth) / 2;
-                int y = (getHeight() - textHeight) / 2 + metrics.getAscent();
-
-                // Draw text (gray for disabled)
-                if (!isEnabled()) {
-                    g2.setColor(new Color(150, 150, 150)); // Gray text for disabled
-                } else {
-                    g2.setColor(Color.BLACK);
-                }
-                g2.drawString(getText(), x, y);
-                g2.dispose();
-            }
-
-            // Override getPreferredSize to ensure the button has the right dimensions
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(width, height);
-            }
-        };
-
-        // Set button properties
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setOpaque(false);
-
-        return button;
-    }
-
-    /**
-     * Creates a custom styled slider with transparent background
-     */
-    private JSlider createCustomSlider(int min, int max, int value) {
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, min, max, value) {
-            @Override
-            public void updateUI() {
-                setUI(new CustomSliderUI(this));
-                updateLabelUIs();
-            }
-
-            // Override to ensure the component is fully transparent
-            @Override
-            protected void paintComponent(Graphics g) {
-                // Don't call super.paintComponent to avoid background painting
-                // Only call UI's paint methods that we've customized
-                if (getUI() != null) {
-                    // Let the UI delegate paint
-                    getUI().paint(g, this);
-                }
-            }
-        };
-
-        // Remove ticks and labels that come by default
-        slider.setPaintTicks(false);
-        slider.setPaintLabels(false);
-
-        // Make the slider transparent
-        slider.setOpaque(false);
-        slider.setBackground(new Color(0, 0, 0, 0)); // Fully transparent
-
-        return slider;
-    }
-
-    /**
-     * Custom UI for the slider component with transparent background
-     */
-    class CustomSliderUI extends javax.swing.plaf.basic.BasicSliderUI {
-
-        public CustomSliderUI(JSlider slider) {
-            super(slider);
-        }
-
-        @Override
-        public void paint(Graphics g, JComponent c) {
-            // Only paint the specific parts we want (track and thumb)
-            paintTrack(g);
-            paintThumb(g);
-            // Deliberately omit painting other parts
-        }
-
-        @Override
-        public void paintTrack(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int width = slider.getWidth();
-            int height = slider.getHeight();
-            int trackHeight = 4;
-
-            // Draw the track - black line
-            g2d.setColor(Color.BLACK);
-            g2d.setStroke(new BasicStroke(trackHeight));
-            g2d.drawLine(0, height / 2, width, height / 2);
-        }
-
-        @Override
-        public void paintThumb(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Rectangle thumbBounds = thumbRect;
-
-            // Create a red filled circle for the thumb
-            g2d.setColor(Color.RED);
-            int diameter = 16; // Size of the circular thumb
-            int x = thumbBounds.x + (thumbBounds.width - diameter) / 2;
-            int y = thumbBounds.y + (thumbBounds.height - diameter) / 2;
-            g2d.fillOval(x, y, diameter, diameter);
-        }
-
-        @Override
-        protected Dimension getThumbSize() {
-            // Make the thumb area larger to make it easier to grab
-            return new Dimension(20, 20);
-        }
-    }
-
 }

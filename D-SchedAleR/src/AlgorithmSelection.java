@@ -91,10 +91,106 @@ public class AlgorithmSelection extends JPanel {
         sstfButton.setBounds(628, 170, 283, 207);
         add(sstfButton);
 
+        sstfButton.addActionListener(e -> {
+            // Get data from DataMethod panel
+            DataMethod dataMethod = main.getDataMethod();
+
+            // Print debug information
+            System.out.println("SSTF button clicked, dataMethod is: " + (dataMethod != null ? "available" : "NULL"));
+
+            // Use sample data if dataMethod is null
+            if (dataMethod == null) {
+                System.out.println("Using sample data instead");
+                // Create sample data
+                java.util.List<Integer> sampleQueue = new java.util.ArrayList<>();
+                sampleQueue.add(82);
+                sampleQueue.add(170);
+                sampleQueue.add(43);
+                sampleQueue.add(140);
+                sampleQueue.add(24);
+                sampleQueue.add(16);
+                sampleQueue.add(190);
+
+                SSTFSimulation SSTFSimulation = new SSTFSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        sampleQueue,
+                        43, // Head start position from image
+                        "RIGHT" // Default direction
+                );
+                mainPanel.add(SSTFSimulation, "SSTFSimulation");
+                layout.show(mainPanel, "SSTFSimulation");
+            } else {
+                // Use actual data from DataMethod
+                SSTFSimulation SSTFSimulation = new SSTFSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        dataMethod.getRequestQueue(),
+                        dataMethod.getHeadStart(),
+                        dataMethod.getDirection());
+                mainPanel.add(SSTFSimulation, "SSTFSimulation");
+                layout.show(mainPanel, "SSTFSimulation");
+            }
+        });
+
         JButton scanButton = createStyledButton(CommonConstants.scanDefault,
                 CommonConstants.scanHover, CommonConstants.scanClick, new Dimension(283, 207));
         scanButton.setBounds(944, 170, 283, 207);
         add(scanButton);
+
+        scanButton.addActionListener(e -> {
+            // Get data from DataMethod panel
+            DataMethod dataMethod = main.getDataMethod();
+
+            // Print debug information
+            System.out.println("SSTF button clicked, dataMethod is: " + (dataMethod != null ? "available" : "NULL"));
+
+            // Use sample data if dataMethod is null
+            if (dataMethod == null) {
+                System.out.println("Using sample data instead");
+                // Create sample data
+                java.util.List<Integer> sampleQueue = new java.util.ArrayList<>();
+                sampleQueue.add(82);
+                sampleQueue.add(170);
+                sampleQueue.add(43);
+                sampleQueue.add(140);
+                sampleQueue.add(24);
+                sampleQueue.add(16);
+                sampleQueue.add(190);
+
+                SCANSimulation SCANSimulation = new SCANSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        sampleQueue,
+                        43, // Head start position from image
+                        "RIGHT" // Default direction
+                );
+                mainPanel.add(SCANSimulation, "SCANSimulation");
+                layout.show(mainPanel, "SCANSimulation");
+            } else {
+                // Use actual data from DataMethod
+                SCANSimulation SCANSimulation = new SCANSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        dataMethod.getRequestQueue(),
+                        dataMethod.getHeadStart(),
+                        dataMethod.getDirection());
+                mainPanel.add(SCANSimulation, "SCANSimulation");
+                layout.show(mainPanel, "SCANSimulation");
+            }
+        });
 
         JButton cscanButton = createStyledButton(CommonConstants.cscanDefault,
                 CommonConstants.cscanHover, CommonConstants.cscanClick, new Dimension(283, 207));

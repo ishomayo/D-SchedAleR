@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "D-SchedAleR/lib/itextpdf-5.5.13.3.jar"
+    ]
+}
