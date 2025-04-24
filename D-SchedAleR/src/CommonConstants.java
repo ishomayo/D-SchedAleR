@@ -118,6 +118,12 @@ public class CommonConstants {
     public static final String simulateALLHover = BASE_PATH + "simulateALL-hover.png";
     public static final String simulateALLClick = BASE_PATH + "simulateALL-click.png";
 
+    public static final String startDefaultSim = BASE_PATH + "start_default.png";
+    public static final String startHoverSim = BASE_PATH + "start_hover.png";
+
+    public static final String backDefaultSim = BASE_PATH + "back2_default.png";
+    public static final String backHoverSim = BASE_PATH + "back2_hover.png";
+
     public static final String simulation_screen_FCFS = BASE_PATH + "simulation_screen_FCFS.png";
 
     // Utility method to load images properly

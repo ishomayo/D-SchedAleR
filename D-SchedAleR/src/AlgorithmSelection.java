@@ -5,7 +5,6 @@ import java.awt.CardLayout;
 import java.awt.Image;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
@@ -46,13 +45,6 @@ public class AlgorithmSelection extends JPanel {
             // Print debug information
             System.out.println("FCFS button clicked, dataMethod is: " + (dataMethod != null ? "available" : "NULL"));
 
-            // Remove existing FCFSSimulation panel if it exists
-            for (Component comp : mainPanel.getComponents()) {
-                if (comp instanceof FCFSSimulation) {
-                    mainPanel.remove(comp);
-                }
-            }
-
             // Use sample data if dataMethod is null
             if (dataMethod == null) {
                 System.out.println("Using sample data instead");
@@ -77,6 +69,7 @@ public class AlgorithmSelection extends JPanel {
                         "RIGHT" // Default direction
                 );
                 mainPanel.add(fcfsSimulation, "FCFSSimulation");
+                layout.show(mainPanel, "FCFSSimulation");
             } else {
                 // Use actual data from DataMethod
                 FCFSSimulation fcfsSimulation = new FCFSSimulation(
@@ -89,14 +82,8 @@ public class AlgorithmSelection extends JPanel {
                         dataMethod.getHeadStart(),
                         dataMethod.getDirection());
                 mainPanel.add(fcfsSimulation, "FCFSSimulation");
+                layout.show(mainPanel, "FCFSSimulation");
             }
-            
-            // Validate and repaint the panel before showing it
-            mainPanel.validate();
-            mainPanel.repaint();
-            
-            // Show the FCFSSimulation panel
-            layout.show(mainPanel, "FCFSSimulation");
         });
 
         JButton sstfButton = createStyledButton(CommonConstants.sstfDefault,
