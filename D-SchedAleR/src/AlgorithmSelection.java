@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Image;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 
@@ -28,7 +29,105 @@ public class AlgorithmSelection extends JPanel {
         setLayout(null);
         backgroundImage = CommonConstants.loadImage(CommonConstants.algoSelectBG);
 
-        
+        JButton backButton = createStyledButton(CommonConstants.backDefault,
+                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+        backButton.setBounds(37, 625, 220, 56);
+        add(backButton);
+        backButton.addActionListener(e -> layout.show(mainPanel, "Lobby"));
+
+        JButton fcfsButton = createStyledButton(CommonConstants.fcfsDefault,
+                CommonConstants.fcfsHover, CommonConstants.fcfsClick, new Dimension(283, 207));
+        fcfsButton.setBounds(312, 170, 283, 207);
+        add(fcfsButton);
+        fcfsButton.addActionListener(e -> {
+            // Get data from DataMethod panel
+            DataMethod dataMethod = main.getDataMethod();
+
+            // Print debug information
+            System.out.println("FCFS button clicked, dataMethod is: " + (dataMethod != null ? "available" : "NULL"));
+
+            // Remove existing FCFSSimulation panel if it exists
+            for (Component comp : mainPanel.getComponents()) {
+                if (comp instanceof FCFSSimulation) {
+                    mainPanel.remove(comp);
+                }
+            }
+
+            // Use sample data if dataMethod is null
+            if (dataMethod == null) {
+                System.out.println("Using sample data instead");
+                // Create sample data
+                java.util.List<Integer> sampleQueue = new java.util.ArrayList<>();
+                sampleQueue.add(82);
+                sampleQueue.add(170);
+                sampleQueue.add(43);
+                sampleQueue.add(140);
+                sampleQueue.add(24);
+                sampleQueue.add(16);
+                sampleQueue.add(190);
+
+                FCFSSimulation fcfsSimulation = new FCFSSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        sampleQueue,
+                        43, // Head start position from image
+                        "RIGHT" // Default direction
+                );
+                mainPanel.add(fcfsSimulation, "FCFSSimulation");
+            } else {
+                // Use actual data from DataMethod
+                FCFSSimulation fcfsSimulation = new FCFSSimulation(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        dataMethod.getRequestQueue(),
+                        dataMethod.getHeadStart(),
+                        dataMethod.getDirection());
+                mainPanel.add(fcfsSimulation, "FCFSSimulation");
+            }
+            
+            // Validate and repaint the panel before showing it
+            mainPanel.validate();
+            mainPanel.repaint();
+            
+            // Show the FCFSSimulation panel
+            layout.show(mainPanel, "FCFSSimulation");
+        });
+
+        JButton sstfButton = createStyledButton(CommonConstants.sstfDefault,
+                CommonConstants.sstfHover, CommonConstants.sstfClick, new Dimension(283, 207));
+        sstfButton.setBounds(628, 170, 283, 207);
+        add(sstfButton);
+
+        JButton scanButton = createStyledButton(CommonConstants.scanDefault,
+                CommonConstants.scanHover, CommonConstants.scanClick, new Dimension(283, 207));
+        scanButton.setBounds(944, 170, 283, 207);
+        add(scanButton);
+
+        JButton cscanButton = createStyledButton(CommonConstants.cscanDefault,
+                CommonConstants.cscanHover, CommonConstants.cscanClick, new Dimension(283, 207));
+        cscanButton.setBounds(312, 405, 283, 207);
+        add(cscanButton);
+
+        JButton lookButton = createStyledButton(CommonConstants.lookDefault,
+                CommonConstants.lookHover, CommonConstants.lookClick, new Dimension(283, 207));
+        lookButton.setBounds(628, 405, 283, 207);
+        add(lookButton);
+
+        JButton clookButton = createStyledButton(CommonConstants.clookDefault,
+                CommonConstants.clookHover, CommonConstants.clookClick, new Dimension(283, 207));
+        clookButton.setBounds(944, 405, 283, 207);
+        add(clookButton);
+
+        JButton simulateALLButton = createStyledButton(CommonConstants.simulateALLDefault,
+                CommonConstants.simulateALLHover, CommonConstants.simulateALLClick, new Dimension(220, 56));
+        simulateALLButton.setBounds(660, 610, 220, 70);
+        add(simulateALLButton);
     }
 
     // Set the DataMethod reference
