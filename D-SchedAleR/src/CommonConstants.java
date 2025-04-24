@@ -129,6 +129,12 @@ public class CommonConstants {
     public static final String simulation_screen_SSTF = BASE_PATH + "simulation_screen_SSTF.png";
 
     public static final String simulation_screen_SCAN = BASE_PATH + "simulation_screen_SCAN.png";
+
+    public static final String simulation_screen_CLOOK = BASE_PATH + "simulation_screen_CLOOK.png";
+
+    public static final String simulation_screen_CSCAN = BASE_PATH + "simulation_screen_CSCAN.png";
+
+    public static final String simulation_screen_LOOK = BASE_PATH + "simulation_screen_LOOK.png";
     
 
     // Utility method to load images properly
