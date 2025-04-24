@@ -136,6 +136,7 @@ public class CommonConstants {
 
     public static final String simulation_screen_LOOK = BASE_PATH + "simulation_screen_LOOK.png";
     
+    
 
     // Utility method to load images properly
     public static Image loadImage(String path) {
