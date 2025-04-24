@@ -1,5 +1,3 @@
-
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -17,6 +15,7 @@ public class AlgorithmSelection extends JPanel {
     private Main main;
     private Image backgroundImage;
     private int width, height;
+    private DataMethod dataMethod; // Add reference to DataMethod
 
     public AlgorithmSelection(Main main, CardLayout layout, JPanel mainPanel, int width, int height) {
         this.main = main;
@@ -29,57 +28,22 @@ public class AlgorithmSelection extends JPanel {
         setLayout(null);
         backgroundImage = CommonConstants.loadImage(CommonConstants.algoSelectBG);
 
-        JButton backButton = createStyledButton(CommonConstants.backDefault,
-        CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
-        backButton.setBounds(37, 625, 220, 56);
-        add(backButton);
-        backButton.addActionListener(e -> layout.show(mainPanel, "Lobby"));
-
-        JButton fcfsButton = createStyledButton(CommonConstants.fcfsDefault,
-        CommonConstants.fcfsHover, CommonConstants.fcfsClick, new Dimension(283, 207));
-        fcfsButton.setBounds(312, 170, 283, 207);
-        add(fcfsButton);
-
-        JButton sstfButton = createStyledButton(CommonConstants.sstfDefault,
-        CommonConstants.sstfHover, CommonConstants.sstfClick, new Dimension(283, 207));
-        sstfButton.setBounds(628, 170, 283, 207);
-        add(sstfButton);
-
-        JButton scanButton = createStyledButton(CommonConstants.scanDefault,
-        CommonConstants.scanHover, CommonConstants.scanClick, new Dimension(283, 207));
-        scanButton.setBounds(944, 170, 283, 207);
-        add(scanButton);
-
-        JButton cscanButton = createStyledButton(CommonConstants.cscanDefault,
-        CommonConstants.cscanHover, CommonConstants.cscanClick, new Dimension(283, 207));
-        cscanButton.setBounds(312, 405, 283, 207);
-        add(cscanButton);
-
-        JButton lookButton = createStyledButton(CommonConstants.lookDefault,
-        CommonConstants.lookHover, CommonConstants.lookClick, new Dimension(283, 207));
-        lookButton.setBounds(628, 405, 283, 207);
-        add(lookButton);
-
-        JButton clookButton = createStyledButton(CommonConstants.clookDefault,
-        CommonConstants.clookHover, CommonConstants.clookClick, new Dimension(283, 207));
-        clookButton.setBounds(944, 405, 283, 207);
-        add(clookButton);
-
-        JButton simulateALLButton = createStyledButton(CommonConstants.simulateALLDefault,
-        CommonConstants.simulateALLHover, CommonConstants.simulateALLClick, new Dimension(220, 56));
-        simulateALLButton.setBounds(660, 610, 220, 70);
-        add(simulateALLButton);
+        
     }
 
+    // Set the DataMethod reference
+    public void setDataMethod(DataMethod dataMethod) {
+        this.dataMethod = dataMethod;
+    }
 
-    
-        //*******************************************************
+    // *******************************************************
     //
-    //                  HELPER METHODS
+    // HELPER METHODS
     //
-    //*******************************************************
+    // *******************************************************
 
-    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath, Dimension size) {
+    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
+            Dimension size) {
         JButton button = new JButton();
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);

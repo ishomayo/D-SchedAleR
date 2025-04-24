@@ -16,6 +16,7 @@ public class Main extends JFrame{
     protected static int width = 1300, height = 732;
     private CardLayout layout = new CardLayout();
     private JPanel mainPanel = new JPanel(layout);
+    private DataMethod dataMethod; // Add reference to DataMethod
     
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeLater(() -> {
@@ -54,8 +55,8 @@ public class Main extends JFrame{
         lobbyPanel.add(startButton);
 
         startButton.addActionListener(e -> {
-            DataMethod DataMethodPanel = new DataMethod(this, layout, mainPanel, width, height);
-            mainPanel.add(DataMethodPanel, "SelectDataMethod");
+            dataMethod = new DataMethod(this, layout, mainPanel, width, height);
+            mainPanel.add(dataMethod, "SelectDataMethod");
             layout.show(mainPanel, "SelectDataMethod");
         });
 
@@ -76,6 +77,11 @@ public class Main extends JFrame{
         exitButton.addActionListener(e -> System.exit(0));
 
         mainPanel.add(lobbyPanel, "Lobby");
+    }
+
+    // Getter for DataMethod
+    public DataMethod getDataMethod() {
+        return dataMethod;
     }
 
     private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath, Dimension size) {
