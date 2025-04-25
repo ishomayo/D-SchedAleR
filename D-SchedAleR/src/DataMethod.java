@@ -1,14 +1,20 @@
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.event.DocumentEvent;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import javax.swing.text.*;
+import java.util.List;
 
 
 public class DataMethod extends JPanel {
@@ -56,6 +62,7 @@ public class DataMethod extends JPanel {
 
         randomButton.addActionListener(e -> showRandom());
         userInputButton.addActionListener(e -> showUserInput());
+        fileInputButton.addActionListener(e -> showFileInput());
         backButton.addActionListener(e -> layout.show(mainPanel, "Lobby"));
     }
 
@@ -387,6 +394,163 @@ public class DataMethod extends JPanel {
         
         mainPanel.add(userInputPanel, "UserInputScreen");
         layout.show(mainPanel, "UserInputScreen");
+    }
+
+    public void showFileInput() {
+        // Mutable reference for background image
+        final ImageIcon[] backgroundImage = { new ImageIcon(CommonConstants.fileMethodBG) };
+    
+        JPanel fileInputPanel = new JPanel(null) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage[0].getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        fileInputPanel.setOpaque(false);
+    
+        // Create and configure the "Back" button
+        JButton backButton = createStyledButton(CommonConstants.backDefault,
+                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+        backButton.setBounds(37, 625, 220, 56);
+        fileInputPanel.add(backButton);
+        
+        // Create and configure the "Continue" button
+        JButton continueButton = createStyledButton(CommonConstants.continueDefault,
+                CommonConstants.continueHover, CommonConstants.continueClick, new Dimension(220, 56));
+        continueButton.setBounds(992, 565, 220, 70);
+        continueButton.setEnabled(false);
+        fileInputPanel.add(continueButton);
+    
+        // Create and configure the "Generate" button
+        JButton uploadButton = createStyledButton(CommonConstants.uploadDefault,
+                CommonConstants.uploadHover, CommonConstants.uploadClick, new Dimension(220, 56));
+                uploadButton.setBounds(743, 565, 220, 70);
+        fileInputPanel.add(uploadButton);
+    
+        // Action: Back to Lobby + restore original background
+        backButton.addActionListener(e -> {
+            backgroundImage[0] = new ImageIcon(CommonConstants.randomDataMethodBG);
+            fileInputPanel.repaint();  // Optional if you're navigating away anyway
+            layout.show(mainPanel, "Lobby");
+        });
+
+        continueButton.addActionListener(e -> {
+            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
+            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
+            layout.show(mainPanel, "AlgorithmSelection");
+        });
+
+                // Action: Generate + Change background
+        uploadButton.addActionListener(e -> {
+            fileUpload(continueButton);
+            backgroundImage[0] = new ImageIcon(CommonConstants.fileUploadedMethodBG);
+            fileInputPanel.repaint();  // Refresh to apply new background
+            continueButton.setEnabled(true);
+        });
+
+        // Font settings
+        Font labelFont = new Font("Arial", Font.BOLD, 22); // Or "Montserrat" if installed
+        Font textAreaFont = new Font("Arial", Font.BOLD, 24);
+
+        // Create and configure a JLabel to display the queue length
+        queueLengthLabel = new JLabel();
+        queueLengthLabel.setFont(labelFont);
+        queueLengthLabel.setForeground(Color.BLACK);
+        queueLengthLabel.setBounds(325, 216, 300, 30);
+        fileInputPanel.add(queueLengthLabel);
+
+        // Create and configure a JLabel to display the head start position
+        headStartLabel = new JLabel();
+        headStartLabel.setFont(labelFont);
+        headStartLabel.setForeground(Color.BLACK);
+        headStartLabel.setBounds(325, 370, 300, 30);
+        fileInputPanel.add(headStartLabel);
+
+        // Create and configure a JLabel to display the direction of head movement
+        directionLabel = new JLabel();
+        directionLabel.setFont(labelFont);
+        directionLabel.setForeground(Color.BLACK);
+        directionLabel.setBounds(325, 531, 300, 30);
+        fileInputPanel.add(directionLabel);
+
+        // Create and configure a JTextArea to display the request queue numbers
+        requestQueueArea = new JTextArea();
+        requestQueueArea.setFont(textAreaFont);
+        requestQueueArea.setForeground(Color.BLACK);
+        requestQueueArea.setOpaque(false);
+        requestQueueArea.setEditable(false);
+        requestQueueArea.setLineWrap(true);
+        requestQueueArea.setWrapStyleWord(true);
+        requestQueueArea.setBounds(740, 218, 477, 182);
+        requestQueueArea.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        requestQueueArea.setMargin(new Insets(0, 5, 0, 5));
+        fileInputPanel.add(requestQueueArea);
+
+        mainPanel.add(fileInputPanel, "RandomScreen");
+        layout.show(mainPanel, "RandomScreen");
+    }
+
+    public void fileUpload(JButton continueButton) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
+        int returnValue = fileChooser.showOpenDialog(null);
+
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                String queueLengthStr = reader.readLine(); // line 1
+                String requestQueueStr = reader.readLine(); // line 2
+                String headStartStr = reader.readLine();    // line 3
+                String directionStr = reader.readLine();    // line 4
+
+                if (queueLengthStr != null && requestQueueStr != null && headStartStr != null && directionStr != null) {
+                    int queueLength = Integer.parseInt(queueLengthStr.trim());
+                    int headStart = Integer.parseInt(headStartStr.trim());
+                    String direction = directionStr.trim().toUpperCase(); // "LEFT" or "RIGHT"
+
+                    List<Integer> requestQueue = new ArrayList<>();
+                    String[] parts = requestQueueStr.trim().split("\\s+");
+                    if (parts.length != queueLength) {
+                        JOptionPane.showMessageDialog(null, "Mismatch between queue length and number of requests.");
+                        return;
+                    }
+
+                    for (String part : parts) {
+                        requestQueue.add(Integer.parseInt(part.trim()));
+                    }
+
+                    // You can now use these values in your simulation
+                    // queueLength, requestQueue, headStart, direction
+
+                    System.out.println("Queue Length: " + queueLength);
+                    System.out.println("Request Queue: " + requestQueue);
+                    System.out.println("Head Start: " + headStart);
+                    System.out.println("Direction: " + direction);
+
+                    queueLengthLabel.setText(String.valueOf(queueLength));
+                    headStartLabel.setText(String.valueOf(headStart));
+                    directionLabel.setText(direction);
+                
+                    // Format the queue list without brackets
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < requestQueue.size(); i++) {
+                        sb.append(requestQueue.get(i));
+                        if (i != requestQueue.size() - 1) sb.append(" ");
+                    }
+                    requestQueueArea.setText(sb.toString());
+
+                    // You may want to update your GUI or internal variables here
+                    continueButton.setEnabled(true);
+
+                } else {
+                    JOptionPane.showMessageDialog(null, "Incomplete or invalid file format.");
+                }
+            } catch (IOException | NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, "Error reading or parsing the file.");
+            }
+        }
     }
     
     // Getter for queue length

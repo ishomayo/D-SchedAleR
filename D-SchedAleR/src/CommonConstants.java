@@ -47,8 +47,12 @@ public class CommonConstants {
 
     public static final String randomDataMethodBG = BASE_PATH + "random.png";
     public static final String randomGeneratedMethodBG = BASE_PATH + "random-generated.png";
+
     public static final String userDataMethodBG = BASE_PATH + "user-input.png";
-    public static final String fileDataMethodBG = BASE_PATH + "file.png";
+
+    public static final String fileMethodBG = BASE_PATH + "file-input.png";
+    public static final String fileUploadedMethodBG = BASE_PATH + "file-input-uploaded.png";
+
 
     public static final String startDefault = BASE_PATH + "start-default.png";
     public static final String startHover = BASE_PATH + "start-hover.png";
@@ -85,6 +89,10 @@ public class CommonConstants {
     public static final String generateDefault = BASE_PATH + "generate-default.png";
     public static final String generateHover = BASE_PATH + "generate-hover.png";
     public static final String generateClick = BASE_PATH + "generate-click.png";
+
+    public static final String uploadDefault = BASE_PATH + "upload-default.png";
+    public static final String uploadHover = BASE_PATH + "upload-hover.png";
+    public static final String uploadClick = BASE_PATH + "upload-click.png";
 
     public static final String continueDefault = BASE_PATH + "continue-default.png";
     public static final String continueHover = BASE_PATH + "continue-hover.png";
