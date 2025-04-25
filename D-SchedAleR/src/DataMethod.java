@@ -217,17 +217,7 @@ public class DataMethod extends JPanel {
         continueButton.setBounds(992, 565, 220, 70);
         continueButton.setEnabled(false);
         userInputPanel.add(continueButton);
-    
-        // Action: Back to Lobby + restore original background
-        backButton.addActionListener(e -> {
-            layout.show(mainPanel, "Lobby");
-        });
 
-        continueButton.addActionListener(e -> {
-            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
-            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
-            layout.show(mainPanel, "AlgorithmSelection");
-        });
 
         // // Font settings
         Font labelFont = new Font("Arial", Font.BOLD, 22); // Or "Montserrat" if installed
@@ -387,10 +377,20 @@ public class DataMethod extends JPanel {
             @Override public void changedUpdate(DocumentEvent e) { validateInput(); }
         });
 
-        setQueueLengthFromField(queueLengthField);
-        setHeadStartFromField(headStartLabelField);
-        setDirectionFromBox(directionBox);
-        setRequestQueueFromField(requestQueueField);
+                // Action: Back to Lobby + restore original background
+        backButton.addActionListener(e -> {
+            layout.show(mainPanel, "Lobby");
+        });
+
+        continueButton.addActionListener(e -> {
+            setQueueLengthFromField(queueLengthField);
+            setHeadStartFromField(headStartLabelField);
+            setDirectionFromBox(directionBox);
+            setRequestQueueFromField(requestQueueField);            
+            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
+            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
+            layout.show(mainPanel, "AlgorithmSelection");
+        });
         
         mainPanel.add(userInputPanel, "UserInputScreen");
         layout.show(mainPanel, "UserInputScreen");
@@ -434,19 +434,10 @@ public class DataMethod extends JPanel {
             fileInputPanel.repaint();  // Optional if you're navigating away anyway
             layout.show(mainPanel, "Lobby");
         });
-
-        continueButton.addActionListener(e -> {
-            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
-            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
-            layout.show(mainPanel, "AlgorithmSelection");
-        });
-
                 // Action: Generate + Change background
         uploadButton.addActionListener(e -> {
-            fileUpload(continueButton);
-            backgroundImage[0] = new ImageIcon(CommonConstants.fileUploadedMethodBG);
+            fileUpload(continueButton, backgroundImage);
             fileInputPanel.repaint();  // Refresh to apply new background
-            continueButton.setEnabled(true);
         });
 
         // Font settings
@@ -488,11 +479,21 @@ public class DataMethod extends JPanel {
         requestQueueArea.setMargin(new Insets(0, 5, 0, 5));
         fileInputPanel.add(requestQueueArea);
 
+        continueButton.addActionListener(e -> {
+            setQueueLengthFromField(queueLengthLabel);
+            setHeadStartFromField(headStartLabel);
+            setDirectionFromBox(directionLabel);
+            setRequestQueueFromField(requestQueueArea);  
+            AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
+            mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
+            layout.show(mainPanel, "AlgorithmSelection");
+        });
+
         mainPanel.add(fileInputPanel, "RandomScreen");
         layout.show(mainPanel, "RandomScreen");
     }
 
-    public void fileUpload(JButton continueButton) {
+    public void fileUpload(JButton continueButton, ImageIcon[] backgroundImage) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
         int returnValue = fileChooser.showOpenDialog(null);
@@ -510,7 +511,7 @@ public class DataMethod extends JPanel {
                     int headStart = Integer.parseInt(headStartStr.trim());
                     String direction = directionStr.trim().toUpperCase(); // "LEFT" or "RIGHT"
 
-                    List<Integer> requestQueue = new ArrayList<>();
+                    List<Integer> requestQueue = new java.util.ArrayList<>();
                     String[] parts = requestQueueStr.trim().split("\\s+");
                     if (parts.length != queueLength) {
                         JOptionPane.showMessageDialog(null, "Mismatch between queue length and number of requests.");
@@ -542,6 +543,7 @@ public class DataMethod extends JPanel {
                     requestQueueArea.setText(sb.toString());
 
                     // You may want to update your GUI or internal variables here
+                    backgroundImage[0] = new ImageIcon(CommonConstants.fileUploadedMethodBG);
                     continueButton.setEnabled(true);
 
                 } else {
@@ -583,8 +585,26 @@ public class DataMethod extends JPanel {
         }
     }
 
+    public void setQueueLengthFromField(JLabel queueLengthField) {
+        try {
+            this.queueLength = Integer.parseInt(queueLengthField.getText().trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid queue length input");
+            this.queueLength = 0; // or some fallback
+        }
+    }
+
     // Setter for head start position
     public void setHeadStartFromField(JTextField headStartField) {
+        try {
+            this.headStart = Integer.parseInt(headStartField.getText().trim());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid head start input");
+            this.headStart = 0;
+        }
+    }
+
+    public void setHeadStartFromField(JLabel headStartField) {
         try {
             this.headStart = Integer.parseInt(headStartField.getText().trim());
         } catch (NumberFormatException e) {
@@ -599,9 +619,14 @@ public class DataMethod extends JPanel {
         this.direction = selected != null ? selected.toString() : "N/A";
     }
 
+    public void setDirectionFromBox(JLabel directionBox) {
+        Object selected = directionBox.getText();
+        this.direction = selected != null ? selected.toString() : "N/A";
+    }
+
     // Setter for request queue (values must be separated by space)
     public void setRequestQueueFromField(JTextArea requestQueueField) {
-        this.requestQueue = new ArrayList<>();
+        this.requestQueue = new java.util.ArrayList<>();
         String text = requestQueueField.getText().trim();
         if (!text.isEmpty()) {
             String[] tokens = text.split("\\s+");
