@@ -402,7 +402,7 @@ public class FCFSSimulation extends JPanel {
     private void calculateFCFS() {
         StringBuilder sequence = new StringBuilder();
         totalSeekTime = 0;
-        totalHeadMovements = requestQueue.size();
+        totalHeadMovements = 0; // Initialize to 0, we'll count actual movements
 
         int currentPosition = headStart;
 
@@ -413,7 +413,16 @@ public class FCFSSimulation extends JPanel {
         for (Integer request : requestQueue) {
             positions.add(request);
             sequence.append(request).append(", ");
-            totalSeekTime += Math.abs(currentPosition - request);
+
+            // Calculate seek time for this movement
+            int seekDistance = Math.abs(currentPosition - request);
+            totalSeekTime += seekDistance;
+
+            // If there was actual movement, count it
+            if (seekDistance > 0) {
+                totalHeadMovements++;
+            }
+
             currentPosition = request;
         }
 

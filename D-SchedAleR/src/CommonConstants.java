@@ -44,6 +44,9 @@ public class CommonConstants {
     public static final String lobbyBG = BASE_PATH + "lobby.jpg";
     public static final String dataMethodBG = BASE_PATH + "generate-data.png";
     public static final String algoSelectBG = BASE_PATH + "algo-select.png";
+    public static final String help = BASE_PATH + "help.png";
+    public static final String credits = BASE_PATH + "creds.png";
+
 
     public static final String randomDataMethodBG = BASE_PATH + "random.png";
     public static final String randomGeneratedMethodBG = BASE_PATH + "random-generated.png";
@@ -143,6 +146,9 @@ public class CommonConstants {
     public static final String simulation_screen_CSCAN = BASE_PATH + "simulation_screen_CSCAN.png";
 
     public static final String simulation_screen_LOOK = BASE_PATH + "simulation_screen_LOOK.png";
+    
+    public static final String simulation_screen_all = BASE_PATH + "simulation_screen_all.png";
+    
     
     
 

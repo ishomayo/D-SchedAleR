@@ -355,6 +355,54 @@ public class AlgorithmSelection extends JPanel {
                 CommonConstants.simulateALLHover, CommonConstants.simulateALLClick, new Dimension(220, 56));
         simulateALLButton.setBounds(660, 610, 220, 70);
         add(simulateALLButton);
+
+        simulateALLButton.addActionListener(e -> {
+            // Get data from DataMethod panel
+            DataMethod dataMethod = main.getDataMethod();
+
+            // Print debug information
+            System.out.println("SSTF button clicked, dataMethod is: " + (dataMethod != null ? "available" : "NULL"));
+
+            // Use sample data if dataMethod is null
+            if (dataMethod == null) {
+                System.out.println("Using sample data instead");
+                // Create sample data
+                java.util.List<Integer> sampleQueue = new java.util.ArrayList<>();
+                sampleQueue.add(82);
+                sampleQueue.add(170);
+                sampleQueue.add(43);
+                sampleQueue.add(140);
+                sampleQueue.add(24);
+                sampleQueue.add(16);
+                sampleQueue.add(190);
+
+                CombinedSimulationScreen CombinedSimulationScreen = new CombinedSimulationScreen(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        sampleQueue,
+                        43, // Head start position from image
+                        "RIGHT" // Default direction
+                );
+                mainPanel.add(CombinedSimulationScreen, "CombinedSimulationScreen");
+                layout.show(mainPanel, "CombinedSimulationScreen");
+            } else {
+                // Use actual data from DataMethod
+                CombinedSimulationScreen CombinedSimulationScreen = new CombinedSimulationScreen(
+                        main,
+                        layout,
+                        mainPanel,
+                        width,
+                        height,
+                        dataMethod.getRequestQueue(),
+                        dataMethod.getHeadStart(),
+                        dataMethod.getDirection());
+                mainPanel.add(CombinedSimulationScreen, "CombinedSimulationScreen");
+                layout.show(mainPanel, "CombinedSimulationScreen");
+            }
+        });
     }
 
     // Set the DataMethod reference

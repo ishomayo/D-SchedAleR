@@ -682,13 +682,12 @@ public class CLOOKSimulation extends JPanel {
     private void prepareAnimationPoints(List<Integer> positions) {
         animationPoints.clear();
 
-        // Scale positions to fit the graph
         int graphWidth = graphPanel.getWidth();
         int graphHeight = graphPanel.getHeight();
 
         for (int i = 0; i < positions.size(); i++) {
             int x = (positions.get(i) * graphWidth) / 200; // Scale to graph width (assuming 0-199 range)
-            int y = (i * graphHeight) / (positions.size() - 1); // Distribute evenly vertically
+            int y = (i * graphHeight) / (positions.size() - 1); 
 
             animationPoints.add(new Point(x, y));
         }

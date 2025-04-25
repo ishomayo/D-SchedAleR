@@ -17,7 +17,10 @@ public class Main extends JFrame{
     protected static int width = 1300, height = 732;
     private CardLayout layout = new CardLayout();
     private JPanel mainPanel = new JPanel(layout);
-    private DataMethod dataMethod; // Add reference to DataMethod
+    private DataMethod dataMethod; 
+    private Help Help;
+    private Credits Credits;
+    //dynise lira was here
     
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeLater(() -> {
@@ -66,10 +69,22 @@ public class Main extends JFrame{
         helpButton.setBounds(30, 216, 220, 56);
         lobbyPanel.add(helpButton);
 
+        helpButton.addActionListener(e -> {
+            Help = new Help(this, layout, mainPanel, width, height);
+            mainPanel.add(Help, "Help");
+            layout.show(mainPanel, "Help");
+        });
+
         JButton creditsButton = createStyledButton(CommonConstants.creditsDefault,
         CommonConstants.creditsHover, CommonConstants.creditsClick, new Dimension(220, 56));
         creditsButton.setBounds(30, 272, 220, 56);
         lobbyPanel.add(creditsButton);
+
+        creditsButton.addActionListener(e -> {
+            Credits = new Credits(this, layout, mainPanel, width, height);
+            mainPanel.add(Credits, "Credits");
+            layout.show(mainPanel, "Credits");
+        });
 
         JButton exitButton = createStyledButton(CommonConstants.exitDefault,
         CommonConstants.exitHover, CommonConstants.exitClick, new Dimension(220, 56));
