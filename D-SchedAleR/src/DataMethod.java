@@ -594,8 +594,8 @@ public class DataMethod extends JPanel {
                     }
                     requestQueueArea.setText(sb.toString());
 
-                    // You may want to update your GUI or internal variables here
-                    backgroundImage[0] = new ImageIcon(CommonConstants.fileUploadedMethodBG);
+                    // Use proper resource loading for the background image
+                    backgroundImage[0] = CommonConstants.createImageIcon(CommonConstants.fileUploadedMethodBG);
                     continueButton.setEnabled(true);
 
                 } else {

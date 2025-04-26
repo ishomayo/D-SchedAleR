@@ -1319,7 +1319,7 @@ public class CombinedSimulationScreen extends JPanel {
      */
     class AlgorithmPanel extends JPanel {
         private String algorithmName;
-        private JTextField orderSequenceField, totalSeekTimeField, totalHeadMovementsField;
+        private JTextField orderSequenceField, totalSeekTimeField, totalHeadMovementsField, startingPositionField;
         private GraphPanel graphPanel;
         private List<Integer> positions = new ArrayList<>();
         private int currentStep = 0;
@@ -1398,6 +1398,20 @@ public class CombinedSimulationScreen extends JPanel {
             totalHeadMovementsField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 0));
             totalHeadMovementsField.setHorizontalAlignment(JTextField.CENTER);
             metricsPanel.add(totalHeadMovementsField);
+
+            JLabel startPosLabel = new JLabel("Starting Position:");
+            startPosLabel.setBounds(550, 10, 130, 25);
+            startPosLabel.setFont(new Font("Arial", Font.BOLD, 14));
+            metricsPanel.add(startPosLabel);
+
+            startingPositionField = new JTextField(5);
+            startingPositionField.setBounds(680, 10, 80, 25);
+            startingPositionField.setEditable(false);
+            startingPositionField.setBackground(new Color(230, 230, 230));
+            startingPositionField.setText(String.valueOf(CombinedSimulationScreen.this.headStart));
+            startingPositionField.setBorder(BorderFactory.createLineBorder(Color.BLACK, 0));
+            startingPositionField.setHorizontalAlignment(JTextField.CENTER);
+            metricsPanel.add(startingPositionField);
 
             contentPanel.add(metricsPanel);
 
