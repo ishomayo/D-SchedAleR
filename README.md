@@ -20,15 +20,11 @@ git clone https://github.com/ishomayo/D-SchedAler.git
 Alternatively, download the source code and extract it to your preferred directory.
 ## 2. Navigate to the Project Directory
 ```
-cd 
+cd yourDirectory\D-SchedAleR
 ```
 ## 3. Open a terminal or command prompt in the project directory and run:
 ```
-javac 
-```
-<br/> After compiling, execute the program: <br/>
-```
-java 
+java -jar D-SchedAleR.jar
 ```
 
 # Formatting the File Input 
