@@ -1,170 +1,175 @@
 import javax.imageio.ImageIO;
-import java.awt.*;
-import java.io.File;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 public class CommonConstants {
-    // Define resource paths using a more robust method
-    private static final String BASE_PATH;
-
-    static {
-        // Try to get the resources directory from the classpath
-        URL resourceUrl = CommonConstants.class.getClassLoader().getResource("resources");
-        
-        if (resourceUrl != null) {
-            // Use the URL path if available
-            BASE_PATH = resourceUrl.getPath() + File.separator;
-        } else {
-            // Fallback to a relative path from the current working directory
-            String currentDir = System.getProperty("user.dir");
-            
-            // Check if we're running from the project root or from within the src directory
-            if (new File(currentDir + "/D-SchedAleR/src/resources").exists()) {
-                BASE_PATH = "/D-SchedAleR/src/resources/";
-            } else if (new File(currentDir + "/src/resources").exists()) {
-                BASE_PATH = "/src/resources/";
-            } else {
-                // If none of the above paths work, try to use a resource folder in the current directory
-                BASE_PATH = "/resources/";
-                
-                // Create the resources directory if it doesn't exist
-                new File(BASE_PATH).mkdirs();
-                
-                System.out.println("Warning: Resource directory not found. Using " + 
-                                  new File(BASE_PATH).getAbsolutePath() + " instead.");
-            }
-        }
-        
-        System.out.println("Using resource path: " + BASE_PATH);
-    }
-
-    // File paths using the determined BASE_PATH
-    public static final String splashScreen = BASE_PATH + "splash.gif";
-    public static final String lobbyBG = BASE_PATH + "lobby.jpg";
-    public static final String dataMethodBG = BASE_PATH + "generate-data.png";
-    public static final String algoSelectBG = BASE_PATH + "algo-select.png";
-    public static final String help = BASE_PATH + "help.png";
-    public static final String credits = BASE_PATH + "creds.png";
-
-
-    public static final String randomDataMethodBG = BASE_PATH + "random.png";
-    public static final String randomGeneratedMethodBG = BASE_PATH + "random-generated.png";
-
-    public static final String userDataMethodBG = BASE_PATH + "user-input.png";
-
-    public static final String fileMethodBG = BASE_PATH + "file-input.png";
-    public static final String fileUploadedMethodBG = BASE_PATH + "file-input-uploaded.png";
-
-
-    public static final String startDefault = BASE_PATH + "start-default.png";
-    public static final String startHover = BASE_PATH + "start-hover.png";
-    public static final String startClick = BASE_PATH + "start-click.png";
-
-    public static final String helpDefault = BASE_PATH + "help-default.png";
-    public static final String helpHover = BASE_PATH + "help-hover.png";
-    public static final String helpClick = BASE_PATH + "help-click.png";
-
-    public static final String creditsDefault = BASE_PATH + "credits-default.png";
-    public static final String creditsHover = BASE_PATH + "credits-hover.png";
-    public static final String creditsClick = BASE_PATH + "credits-click.png";
-
-    public static final String exitDefault = BASE_PATH + "exit-default.png";
-    public static final String exitHover = BASE_PATH + "exit-hover.png";
-    public static final String exitClick = BASE_PATH + "exit-click.png";
-
-    public static final String randomDefault = BASE_PATH + "random-default.png";
-    public static final String randomHover = BASE_PATH + "random-hover.png";
-    public static final String randomClick = BASE_PATH + "random-click.png";
-
-    public static final String userDefault = BASE_PATH + "user-default.png";
-    public static final String userHover = BASE_PATH + "user-hover.png";
-    public static final String userClick = BASE_PATH + "user-click.png";
-
-    public static final String fileDefault = BASE_PATH + "file-default.png";
-    public static final String fileHover = BASE_PATH + "file-hover.png";
-    public static final String fileClick = BASE_PATH + "file-click.png";
-
-    public static final String backDefault = BASE_PATH + "back-default.png";
-    public static final String backHover = BASE_PATH + "back-hover.png";
-    public static final String backClick = BASE_PATH + "back-click.png";
-
-    public static final String generateDefault = BASE_PATH + "generate-default.png";
-    public static final String generateHover = BASE_PATH + "generate-hover.png";
-    public static final String generateClick = BASE_PATH + "generate-click.png";
-
-    public static final String uploadDefault = BASE_PATH + "upload-default.png";
-    public static final String uploadHover = BASE_PATH + "upload-hover.png";
-    public static final String uploadClick = BASE_PATH + "upload-click.png";
-
-    public static final String continueDefault = BASE_PATH + "continue-default.png";
-    public static final String continueHover = BASE_PATH + "continue-hover.png";
-    public static final String continueClick = BASE_PATH + "continue-click.png";
-
-    public static final String fcfsDefault = BASE_PATH + "fcfs-default.png";
-    public static final String fcfsHover = BASE_PATH + "fcfs-hover.png";
-    public static final String fcfsClick = BASE_PATH + "fcfs-click.png";
-
-    public static final String sstfDefault = BASE_PATH + "sstf-default.png";
-    public static final String sstfHover = BASE_PATH + "sstf-hover.png";
-    public static final String sstfClick = BASE_PATH + "sstf-click.png";
-
-    public static final String scanDefault = BASE_PATH + "scan-default.png";
-    public static final String scanHover = BASE_PATH + "scan-hover.png";
-    public static final String scanClick = BASE_PATH + "scan-click.png";
+    // Define resource paths - using the format that worked for lobby.jpg
+    private static final String RESOURCE_PREFIX = "resources/";
     
-    public static final String cscanDefault = BASE_PATH + "cscan-default.png";
-    public static final String cscanHover = BASE_PATH + "cscan-hover.png";
-    public static final String cscanClick = BASE_PATH + "cscan-click.png";
+    // File paths
+    public static final String splashScreen = RESOURCE_PREFIX + "splash.gif";
+    public static final String lobbyBG = RESOURCE_PREFIX + "lobby.jpg";
+    public static final String dataMethodBG = RESOURCE_PREFIX + "generate-data.png";
+    public static final String algoSelectBG = RESOURCE_PREFIX + "algo-select.png";
+    public static final String help = RESOURCE_PREFIX + "help.png";
+    public static final String credits = RESOURCE_PREFIX + "creds.png";
 
-    public static final String lookDefault = BASE_PATH + "look-default.png";
-    public static final String lookHover = BASE_PATH + "look-hover.png";    
-    public static final String lookClick = BASE_PATH + "look-click.png";
+    public static final String randomDataMethodBG = RESOURCE_PREFIX + "random.png";
+    public static final String randomGeneratedMethodBG = RESOURCE_PREFIX + "random-generated.png";
 
-    public static final String clookDefault = BASE_PATH + "clook-default.png";
-    public static final String clookHover = BASE_PATH + "clook-hover.png";
-    public static final String clookClick = BASE_PATH + "clook-click.png";
+    public static final String userDataMethodBG = RESOURCE_PREFIX + "user-input.png";
 
-    public static final String simulateALLDefault = BASE_PATH + "simulateALL-default.png";
-    public static final String simulateALLHover = BASE_PATH + "simulateALL-hover.png";
-    public static final String simulateALLClick = BASE_PATH + "simulateALL-click.png";
+    public static final String fileMethodBG = RESOURCE_PREFIX + "file-input.png";
+    public static final String fileUploadedMethodBG = RESOURCE_PREFIX + "file-input-uploaded.png";
 
-    public static final String startDefaultSim = BASE_PATH + "start_default.png";
-    public static final String startHoverSim = BASE_PATH + "start_hover.png";
+    public static final String startDefault = RESOURCE_PREFIX + "start-default.png";
+    public static final String startHover = RESOURCE_PREFIX + "start-hover.png";
+    public static final String startClick = RESOURCE_PREFIX + "start-click.png";
 
-    public static final String backDefaultSim = BASE_PATH + "back2_default.png";
-    public static final String backHoverSim = BASE_PATH + "back2_hover.png";
+    public static final String helpDefault = RESOURCE_PREFIX + "help-default.png";
+    public static final String helpHover = RESOURCE_PREFIX + "help-hover.png";
+    public static final String helpClick = RESOURCE_PREFIX + "help-click.png";
 
-    public static final String simulation_screen_FCFS = BASE_PATH + "simulation_screen_FCFS.png";
+    public static final String creditsDefault = RESOURCE_PREFIX + "credits-default.png";
+    public static final String creditsHover = RESOURCE_PREFIX + "credits-hover.png";
+    public static final String creditsClick = RESOURCE_PREFIX + "credits-click.png";
 
-    public static final String simulation_screen_SSTF = BASE_PATH + "simulation_screen_SSTF.png";
+    public static final String exitDefault = RESOURCE_PREFIX + "exit-default.png";
+    public static final String exitHover = RESOURCE_PREFIX + "exit-hover.png";
+    public static final String exitClick = RESOURCE_PREFIX + "exit-click.png";
 
-    public static final String simulation_screen_SCAN = BASE_PATH + "simulation_screen_SCAN.png";
+    public static final String randomDefault = RESOURCE_PREFIX + "random-default.png";
+    public static final String randomHover = RESOURCE_PREFIX + "random-hover.png";
+    public static final String randomClick = RESOURCE_PREFIX + "random-click.png";
 
-    public static final String simulation_screen_CLOOK = BASE_PATH + "simulation_screen_CLOOK.png";
+    public static final String userDefault = RESOURCE_PREFIX + "user-default.png";
+    public static final String userHover = RESOURCE_PREFIX + "user-hover.png";
+    public static final String userClick = RESOURCE_PREFIX + "user-click.png";
 
-    public static final String simulation_screen_CSCAN = BASE_PATH + "simulation_screen_CSCAN.png";
+    public static final String fileDefault = RESOURCE_PREFIX + "file-default.png";
+    public static final String fileHover = RESOURCE_PREFIX + "file-hover.png";
+    public static final String fileClick = RESOURCE_PREFIX + "file-click.png";
 
-    public static final String simulation_screen_LOOK = BASE_PATH + "simulation_screen_LOOK.png";
+    public static final String backDefault = RESOURCE_PREFIX + "back-default.png";
+    public static final String backHover = RESOURCE_PREFIX + "back-hover.png";
+    public static final String backClick = RESOURCE_PREFIX + "back-click.png";
+
+    public static final String generateDefault = RESOURCE_PREFIX + "generate-default.png";
+    public static final String generateHover = RESOURCE_PREFIX + "generate-hover.png";
+    public static final String generateClick = RESOURCE_PREFIX + "generate-click.png";
+
+    public static final String uploadDefault = RESOURCE_PREFIX + "upload-default.png";
+    public static final String uploadHover = RESOURCE_PREFIX + "upload-hover.png";
+    public static final String uploadClick = RESOURCE_PREFIX + "upload-click.png";
+
+    public static final String continueDefault = RESOURCE_PREFIX + "continue-default.png";
+    public static final String continueHover = RESOURCE_PREFIX + "continue-hover.png";
+    public static final String continueClick = RESOURCE_PREFIX + "continue-click.png";
+
+    public static final String fcfsDefault = RESOURCE_PREFIX + "fcfs-default.png";
+    public static final String fcfsHover = RESOURCE_PREFIX + "fcfs-hover.png";
+    public static final String fcfsClick = RESOURCE_PREFIX + "fcfs-click.png";
+
+    public static final String sstfDefault = RESOURCE_PREFIX + "sstf-default.png";
+    public static final String sstfHover = RESOURCE_PREFIX + "sstf-hover.png";
+    public static final String sstfClick = RESOURCE_PREFIX + "sstf-click.png";
+
+    public static final String scanDefault = RESOURCE_PREFIX + "scan-default.png";
+    public static final String scanHover = RESOURCE_PREFIX + "scan-hover.png";
+    public static final String scanClick = RESOURCE_PREFIX + "scan-click.png";
     
-    public static final String simulation_screen_all = BASE_PATH + "simulation_screen_all.png";
-    
-    
-    
+    public static final String cscanDefault = RESOURCE_PREFIX + "cscan-default.png";
+    public static final String cscanHover = RESOURCE_PREFIX + "cscan-hover.png";
+    public static final String cscanClick = RESOURCE_PREFIX + "cscan-click.png";
 
-    // Utility method to load images properly
-    public static Image loadImage(String path) {
+    public static final String lookDefault = RESOURCE_PREFIX + "look-default.png";
+    public static final String lookHover = RESOURCE_PREFIX + "look-hover.png";    
+    public static final String lookClick = RESOURCE_PREFIX + "look-click.png";
+
+    public static final String clookDefault = RESOURCE_PREFIX + "clook-default.png";
+    public static final String clookHover = RESOURCE_PREFIX + "clook-hover.png";
+    public static final String clookClick = RESOURCE_PREFIX + "clook-click.png";
+
+    public static final String simulateALLDefault = RESOURCE_PREFIX + "simulateALL-default.png";
+    public static final String simulateALLHover = RESOURCE_PREFIX + "simulateALL-hover.png";
+    public static final String simulateALLClick = RESOURCE_PREFIX + "simulateALL-click.png";
+
+    public static final String startDefaultSim = RESOURCE_PREFIX + "start_default.png";
+    public static final String startHoverSim = RESOURCE_PREFIX + "start_hover.png";
+
+    public static final String backDefaultSim = RESOURCE_PREFIX + "back2_default.png";
+    public static final String backHoverSim = RESOURCE_PREFIX + "back2_hover.png";
+
+    public static final String simulation_screen_FCFS = RESOURCE_PREFIX + "simulation_screen_FCFS.png";
+    public static final String simulation_screen_SSTF = RESOURCE_PREFIX + "simulation_screen_SSTF.png";
+    public static final String simulation_screen_SCAN = RESOURCE_PREFIX + "simulation_screen_SCAN.png";
+    public static final String simulation_screen_CLOOK = RESOURCE_PREFIX + "simulation_screen_CLOOK.png";
+    public static final String simulation_screen_CSCAN = RESOURCE_PREFIX + "simulation_screen_CSCAN.png";
+    public static final String simulation_screen_LOOK = RESOURCE_PREFIX + "simulation_screen_LOOK.png";
+    public static final String simulation_screen_all = RESOURCE_PREFIX + "simulation_screen_all.png";
+
+    /**
+     * Loads an image resource using ClassLoader.getSystemResourceAsStream
+     * which worked for at least some resources like lobby.jpg
+     * 
+     * @param resourcePath Path to the resource
+     * @return The loaded Image or null if it couldn't be loaded
+     */
+    public static Image loadImage(String resourcePath) {
         try {
-            File imageFile = new File(path);
-            if (!imageFile.exists()) {
-                System.err.println("File not found: " + path);
+            // First try the method that worked for lobby.jpg
+            InputStream is = ClassLoader.getSystemResourceAsStream(resourcePath);
+            
+            // If that fails, try with the class's class loader
+            if (is == null) {
+                is = CommonConstants.class.getClassLoader().getResourceAsStream(resourcePath);
+            }
+            
+            // If that fails too, try without the resources/ prefix
+            if (is == null && resourcePath.startsWith(RESOURCE_PREFIX)) {
+                String altPath = resourcePath.substring(RESOURCE_PREFIX.length());
+                is = ClassLoader.getSystemResourceAsStream(altPath);
+                
+                if (is == null) {
+                    is = CommonConstants.class.getClassLoader().getResourceAsStream(altPath);
+                }
+            }
+            
+            // If all methods fail, print an error and return null
+            if (is == null) {
+                System.err.println("Could not find resource: " + resourcePath);
                 return null;
             }
-            return ImageIO.read(imageFile);
+            
+            // Read the image from the input stream
+            Image img = ImageIO.read(is);
+            is.close();
+            
+            if (img == null) {
+                System.err.println("Failed to decode image: " + resourcePath);
+                return null;
+            }
+            
+            return img;
         } catch (IOException e) {
-            System.err.println("Failed to load image: " + path);
+            System.err.println("Error loading image '" + resourcePath + "': " + e.getMessage());
             e.printStackTrace();
             return null;
         }
+    }
+    
+    /**
+     * Utility method to create an ImageIcon from a resource path
+     * @param resourcePath Path to the resource
+     * @return The ImageIcon or null if resource couldn't be loaded
+     */
+    public static ImageIcon createImageIcon(String resourcePath) {
+        Image img = loadImage(resourcePath);
+        if (img != null) {
+            return new ImageIcon(img);
+        }
+        return new ImageIcon(img);
     }
 }

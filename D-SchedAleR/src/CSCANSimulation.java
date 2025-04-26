@@ -69,7 +69,8 @@ public class CSCANSimulation extends JPanel {
 
         setSize(width, height);
         setLayout(null);
-        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_CSCAN);  // You might want to update this constant
+        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_CSCAN); // You might want to
+                                                                                              // update this constant
 
         createUI();
         calculateCSCAN();
@@ -576,23 +577,24 @@ public class CSCANSimulation extends JPanel {
 
         // Create a copy of the request queue
         List<Integer> sortedRequests = new ArrayList<>(requestQueue);
-        
+
         // Sort all requests in ascending order
         Collections.sort(sortedRequests);
-        
+
         // Find the index where requests are greater than or equal to current position
         int index = 0;
         while (index < sortedRequests.size() && sortedRequests.get(index) < currentPosition) {
             index++;
         }
-        
-        // Determine the direction of movement (default to moving toward larger cylinder numbers)
-        boolean movingTowardsLarger = "right".equalsIgnoreCase(direction) || 
-                                     (!"left".equalsIgnoreCase(direction));
-        
+
+        // Determine the direction of movement (default to moving toward larger cylinder
+        // numbers)
+        boolean movingTowardsLarger = "right".equalsIgnoreCase(direction) ||
+                (!"left".equalsIgnoreCase(direction));
+
         if (movingTowardsLarger) {
             // Moving towards larger cylinder numbers first
-            
+
             // First service all requests >= current position
             for (int i = index; i < sortedRequests.size(); i++) {
                 int request = sortedRequests.get(i);
@@ -602,7 +604,7 @@ public class CSCANSimulation extends JPanel {
                 currentPosition = request;
                 totalHeadMovements++;
             }
-            
+
             // Always go to the end of the disk - true C-SCAN behavior
             if (currentPosition < MAX_DISK_SIZE) {
                 positions.add(MAX_DISK_SIZE);
@@ -611,7 +613,7 @@ public class CSCANSimulation extends JPanel {
                 currentPosition = MAX_DISK_SIZE;
                 totalHeadMovements++;
             }
-            
+
             // Quick return to the beginning (0) without servicing requests on the way
             // In a real system, this would be a seek with no I/O operations
             positions.add(0); // Visualize the head movement
@@ -619,7 +621,7 @@ public class CSCANSimulation extends JPanel {
             totalSeekTime += MAX_DISK_SIZE; // Full seek from max to min
             currentPosition = 0;
             totalHeadMovements++;
-            
+
             // Service all requests from the beginning up to the starting position
             for (int i = 0; i < index; i++) {
                 int request = sortedRequests.get(i);
@@ -631,7 +633,7 @@ public class CSCANSimulation extends JPanel {
             }
         } else {
             // Moving towards smaller cylinder numbers first
-            
+
             // First service all requests < current position (in reverse order)
             for (int i = index - 1; i >= 0; i--) {
                 int request = sortedRequests.get(i);
@@ -641,7 +643,7 @@ public class CSCANSimulation extends JPanel {
                 currentPosition = request;
                 totalHeadMovements++;
             }
-            
+
             // Always go to the beginning of the disk - true C-SCAN behavior
             if (currentPosition > 0) {
                 positions.add(0);
@@ -650,14 +652,14 @@ public class CSCANSimulation extends JPanel {
                 currentPosition = 0;
                 totalHeadMovements++;
             }
-            
+
             // Quick return to the end (MAX_DISK_SIZE) without servicing requests on the way
             positions.add(MAX_DISK_SIZE); // Visualize the head movement
             sequence.append(MAX_DISK_SIZE).append(", ");
             totalSeekTime += MAX_DISK_SIZE; // Full seek from min to max
             currentPosition = MAX_DISK_SIZE;
             totalHeadMovements++;
-            
+
             // Service all requests from the end down to the starting position
             for (int i = sortedRequests.size() - 1; i >= index; i--) {
                 int request = sortedRequests.get(i);
@@ -828,7 +830,7 @@ public class CSCANSimulation extends JPanel {
         timerLabel.setText(timeString);
     }
 
-    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
+    public static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
             Dimension size) {
         JButton button = new JButton();
         button.setContentAreaFilled(false);
@@ -836,72 +838,74 @@ public class CSCANSimulation extends JPanel {
         button.setBorderPainted(false);
         button.setPreferredSize(size);
 
+        // Use CommonConstants to load the images
         ImageIcon defaultIcon = scaleImage(defaultIconPath, size);
         ImageIcon hoverIcon = scaleImage(hoverIconPath, size);
         ImageIcon clickIcon = scaleImage(clickIconPath, size);
 
-        button.setIcon(defaultIcon);
+        // Set the default icon if available, or add a fallback text
+        if (defaultIcon != null) {
+            button.setIcon(defaultIcon);
+        } else {
+            button.setText("Button");
+            System.err.println("Failed to load button images for: " + defaultIconPath);
+        }
 
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
+        // Only add mouse listeners if we have the hover/click icons
+        if (hoverIcon != null && clickIcon != null) {
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(hoverIcon);
+                    }
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setIcon(defaultIcon);
-            }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(defaultIcon);
+                    }
+                }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                button.setIcon(clickIcon);
-            }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(clickIcon);
+                    }
+                }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
-        });
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        if (button.contains(e.getPoint())) {
+                            button.setIcon(hoverIcon);
+                        } else {
+                            button.setIcon(defaultIcon);
+                        }
+                    }
+                }
+            });
+        }
 
         return button;
     }
 
+    /**
+     * Scales an image loaded from resources
+     */
     private static ImageIcon scaleImage(String path, Dimension size) {
-        try {
-            // Load the original image
-            ImageIcon originalIcon = new ImageIcon(path);
-            Image originalImage = originalIcon.getImage();
+        // Use CommonConstants to load the image from resources
+        ImageIcon icon = CommonConstants.createImageIcon(path);
 
-            // Create a new buffered image with transparency
-            BufferedImage resizedImage = new BufferedImage(
-                    size.width, size.height, BufferedImage.TYPE_INT_ARGB);
-
-            // Get the graphics context of the new image
-            Graphics2D g2d = resizedImage.createGraphics();
-
-            // Set better rendering hints for higher quality
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Draw the original image onto the new one
-            g2d.drawImage(originalImage, 0, 0, size.width, size.height, null);
-
-            // Clean up
-            g2d.dispose();
-
-            // Create and return a new ImageIcon from the resized image
-            return new ImageIcon(resizedImage);
-        } catch (Exception e) {
-            System.err.println("Error scaling image: " + path);
-            e.printStackTrace();
-            // Return the original icon if there's an error
-            return new ImageIcon(path);
+        // If the image couldn't be loaded, return null
+        if (icon == null) {
+            return null;
         }
+
+        // Scale the image
+        Image img = icon.getImage().getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
     }
 
     @Override

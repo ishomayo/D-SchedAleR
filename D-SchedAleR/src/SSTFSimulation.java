@@ -67,7 +67,8 @@ public class SSTFSimulation extends JPanel {
 
         setSize(width, height);
         setLayout(null);
-        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_SSTF);  // You might want to update this constant
+        backgroundImage = CommonConstants.loadImage(CommonConstants.simulation_screen_SSTF); // You might want to update
+                                                                                             // this constant
 
         createUI();
         calculateSSTF();
@@ -160,7 +161,6 @@ public class SSTFSimulation extends JPanel {
             return new Dimension(20, 20);
         }
     }
-
 
     private JButton createOblongButton(String text, int width, int height) {
         JButton button = new JButton(text) {
@@ -580,17 +580,17 @@ public class SSTFSimulation extends JPanel {
         while (!remainingRequests.isEmpty()) {
             // Find the closest request to the current head position
             int closestRequest = findClosestRequest(currentPosition, remainingRequests);
-            
+
             // Add the closest request to the sequence
             positions.add(closestRequest);
             sequence.append(closestRequest).append(", ");
-            
+
             // Update total seek time
             totalSeekTime += Math.abs(currentPosition - closestRequest);
-            
+
             // Move head to this position
             currentPosition = closestRequest;
-            
+
             // Remove this request from the remaining list
             remainingRequests.remove(Integer.valueOf(closestRequest));
         }
@@ -617,11 +617,11 @@ public class SSTFSimulation extends JPanel {
     private int findClosestRequest(int currentPosition, List<Integer> requests) {
         int closestRequest = requests.get(0);
         int minDistance = Math.abs(currentPosition - closestRequest);
-        
+
         for (int i = 1; i < requests.size(); i++) {
             int request = requests.get(i);
             int distance = Math.abs(currentPosition - request);
-            
+
             if (distance < minDistance) {
                 minDistance = distance;
                 closestRequest = request;
@@ -629,7 +629,7 @@ public class SSTFSimulation extends JPanel {
             // In case of a tie, we could implement a tie-breaking strategy here
             // For example, prefer the one in the current direction of head movement
         }
-        
+
         return closestRequest;
     }
 
@@ -776,7 +776,7 @@ public class SSTFSimulation extends JPanel {
         timerLabel.setText(timeString);
     }
 
-    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
+    public static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
             Dimension size) {
         JButton button = new JButton();
         button.setContentAreaFilled(false);
@@ -784,72 +784,74 @@ public class SSTFSimulation extends JPanel {
         button.setBorderPainted(false);
         button.setPreferredSize(size);
 
+        // Use CommonConstants to load the images
         ImageIcon defaultIcon = scaleImage(defaultIconPath, size);
         ImageIcon hoverIcon = scaleImage(hoverIconPath, size);
         ImageIcon clickIcon = scaleImage(clickIconPath, size);
 
-        button.setIcon(defaultIcon);
+        // Set the default icon if available, or add a fallback text
+        if (defaultIcon != null) {
+            button.setIcon(defaultIcon);
+        } else {
+            button.setText("Button");
+            System.err.println("Failed to load button images for: " + defaultIconPath);
+        }
 
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
+        // Only add mouse listeners if we have the hover/click icons
+        if (hoverIcon != null && clickIcon != null) {
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(hoverIcon);
+                    }
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setIcon(defaultIcon);
-            }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(defaultIcon);
+                    }
+                }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                button.setIcon(clickIcon);
-            }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(clickIcon);
+                    }
+                }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
-        });
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        if (button.contains(e.getPoint())) {
+                            button.setIcon(hoverIcon);
+                        } else {
+                            button.setIcon(defaultIcon);
+                        }
+                    }
+                }
+            });
+        }
 
         return button;
     }
 
+    /**
+     * Scales an image loaded from resources
+     */
     private static ImageIcon scaleImage(String path, Dimension size) {
-        try {
-            // Load the original image
-            ImageIcon originalIcon = new ImageIcon(path);
-            Image originalImage = originalIcon.getImage();
+        // Use CommonConstants to load the image from resources
+        ImageIcon icon = CommonConstants.createImageIcon(path);
 
-            // Create a new buffered image with transparency
-            BufferedImage resizedImage = new BufferedImage(
-                    size.width, size.height, BufferedImage.TYPE_INT_ARGB);
-
-            // Get the graphics context of the new image
-            Graphics2D g2d = resizedImage.createGraphics();
-
-            // Set better rendering hints for higher quality
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // Draw the original image onto the new one
-            g2d.drawImage(originalImage, 0, 0, size.width, size.height, null);
-
-            // Clean up
-            g2d.dispose();
-
-            // Create and return a new ImageIcon from the resized image
-            return new ImageIcon(resizedImage);
-        } catch (Exception e) {
-            System.err.println("Error scaling image: " + path);
-            e.printStackTrace();
-            // Return the original icon if there's an error
-            return new ImageIcon(path);
+        // If the image couldn't be loaded, return null
+        if (icon == null) {
+            return null;
         }
+
+        // Scale the image
+        Image img = icon.getImage().getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
     }
 
     @Override

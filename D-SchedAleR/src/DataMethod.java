@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import javax.swing.text.*;
 import java.util.List;
 
-
 public class DataMethod extends JPanel {
 
     private JPanel mainPanel;
@@ -41,22 +40,22 @@ public class DataMethod extends JPanel {
         backgroundImage = CommonConstants.loadImage(CommonConstants.dataMethodBG);
 
         JButton randomButton = createStyledButton(CommonConstants.randomDefault,
-        CommonConstants.randomHover, CommonConstants.randomClick, new Dimension(220, 56));
+                CommonConstants.randomHover, CommonConstants.randomClick, new Dimension(220, 56));
         randomButton.setBounds(37, 457, 220, 56);
         add(randomButton);
 
         JButton userInputButton = createStyledButton(CommonConstants.userDefault,
-        CommonConstants.userHover, CommonConstants.userClick, new Dimension(220, 56));
+                CommonConstants.userHover, CommonConstants.userClick, new Dimension(220, 56));
         userInputButton.setBounds(37, 513, 220, 56);
         add(userInputButton);
 
         JButton fileInputButton = createStyledButton(CommonConstants.fileDefault,
-        CommonConstants.fileHover, CommonConstants.fileClick, new Dimension(220, 56));
+                CommonConstants.fileHover, CommonConstants.fileClick, new Dimension(220, 56));
         fileInputButton.setBounds(37, 569, 220, 56);
         add(fileInputButton);
 
         JButton backButton = createStyledButton(CommonConstants.backDefault,
-        CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
         backButton.setBounds(37, 625, 220, 56);
         add(backButton);
 
@@ -67,49 +66,65 @@ public class DataMethod extends JPanel {
     }
 
     public void showRandom() {
-        // Mutable reference for background image
-        final ImageIcon[] backgroundImage = { new ImageIcon(CommonConstants.randomDataMethodBG) };
-    
+        // Mutable reference for background image - using proper resource loading
+        final ImageIcon[] backgroundImage = { CommonConstants.createImageIcon(CommonConstants.randomDataMethodBG) };
+
         JPanel randomPanel = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(backgroundImage[0].getImage(), 0, 0, getWidth(), getHeight(), this);
+                if (backgroundImage[0] != null) {
+                    g.drawImage(backgroundImage[0].getImage(), 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback if image loading fails
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
             }
         };
         randomPanel.setOpaque(false);
-    
-        // Create and configure the "Back" button
-        JButton backButton = createStyledButton(CommonConstants.backDefault,
-                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+
+        // Create and configure the "Back" button using ButtonUtil
+        JButton backButton = createStyledButton(
+                CommonConstants.backDefault,
+                CommonConstants.backHover,
+                CommonConstants.backClick,
+                new Dimension(220, 56));
         backButton.setBounds(37, 625, 220, 56);
         randomPanel.add(backButton);
-        
+
         // Create and configure the "Continue" button
-        JButton continueButton = createStyledButton(CommonConstants.continueDefault,
-                CommonConstants.continueHover, CommonConstants.continueClick, new Dimension(220, 56));
+        JButton continueButton = createStyledButton(
+                CommonConstants.continueDefault,
+                CommonConstants.continueHover,
+                CommonConstants.continueClick,
+                new Dimension(220, 56));
         continueButton.setBounds(992, 565, 220, 70);
         continueButton.setEnabled(false);
         randomPanel.add(continueButton);
-    
+
         // Create and configure the "Generate" button
-        JButton generateButton = createStyledButton(CommonConstants.generateDefault,
-                CommonConstants.generateHover, CommonConstants.generateClick, new Dimension(220, 56));
+        JButton generateButton = createStyledButton(
+                CommonConstants.generateDefault,
+                CommonConstants.generateHover,
+                CommonConstants.generateClick,
+                new Dimension(220, 56));
         generateButton.setBounds(743, 565, 220, 70);
         randomPanel.add(generateButton);
-    
+
         // Action: Generate + Change background
         generateButton.addActionListener(e -> {
             generateRandom();
-            backgroundImage[0] = new ImageIcon(CommonConstants.randomGeneratedMethodBG);
-            randomPanel.repaint();  // Refresh to apply new background
+            // Use proper resource loading for the new background
+            backgroundImage[0] = CommonConstants.createImageIcon(CommonConstants.randomGeneratedMethodBG);
+            randomPanel.repaint(); // Refresh to apply new background
             continueButton.setEnabled(true);
         });
-    
+
         // Action: Back to Lobby + restore original background
         backButton.addActionListener(e -> {
-            backgroundImage[0] = new ImageIcon(CommonConstants.randomDataMethodBG);
-            randomPanel.repaint();  // Optional if you're navigating away anyway
+            backgroundImage[0] = CommonConstants.createImageIcon(CommonConstants.randomDataMethodBG);
+            randomPanel.repaint(); // Optional if you're navigating away anyway
             layout.show(mainPanel, "Lobby");
         });
 
@@ -161,33 +176,34 @@ public class DataMethod extends JPanel {
         mainPanel.add(randomPanel, "RandomScreen");
         layout.show(mainPanel, "RandomScreen");
     }
-    
+
     private void generateRandom() {
         // Random queue length between 1 and 40
-        queueLength = (int)(Math.random() * 40) + 1;
-    
+        queueLength = (int) (Math.random() * 40) + 1;
+
         // Generate queue values from 0 to 199
         requestQueue = new java.util.ArrayList<>();
         for (int i = 0; i < queueLength; i++) {
-            requestQueue.add((int)(Math.random() * 200));
+            requestQueue.add((int) (Math.random() * 200));
         }
-    
+
         // Head's starting position from 0 to 199
-        headStart = (int)(Math.random() * 200);
-    
+        headStart = (int) (Math.random() * 200);
+
         // Random direction
         direction = Math.random() < 0.5 ? "LEFT" : "RIGHT";
-    
+
         // Update labels and text area
         queueLengthLabel.setText(String.valueOf(queueLength));
         headStartLabel.setText(String.valueOf(headStart));
         directionLabel.setText(direction);
-    
+
         // Format the queue list without brackets
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < requestQueue.size(); i++) {
             sb.append(requestQueue.get(i));
-            if (i != requestQueue.size() - 1) sb.append(" ");
+            if (i != requestQueue.size() - 1)
+                sb.append(" ");
         }
         requestQueueArea.setText(sb.toString());
     }
@@ -195,7 +211,7 @@ public class DataMethod extends JPanel {
     public void showUserInput() {
         // Mutable reference for background image
         backgroundImage = CommonConstants.loadImage(CommonConstants.userDataMethodBG);
-    
+
         JPanel userInputPanel = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -204,13 +220,13 @@ public class DataMethod extends JPanel {
             }
         };
         userInputPanel.setOpaque(false);
-    
+
         // Create and configure the "Back" button
         JButton backButton = createStyledButton(CommonConstants.backDefault,
                 CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
         backButton.setBounds(37, 625, 220, 56);
         userInputPanel.add(backButton);
-        
+
         // Create and configure the "Continue" button
         JButton continueButton = createStyledButton(CommonConstants.continueDefault,
                 CommonConstants.continueHover, CommonConstants.continueClick, new Dimension(220, 56));
@@ -218,12 +234,10 @@ public class DataMethod extends JPanel {
         continueButton.setEnabled(false);
         userInputPanel.add(continueButton);
 
-
         // // Font settings
         Font labelFont = new Font("Arial", Font.BOLD, 22); // Or "Montserrat" if installed
         Font textAreaFont = new Font("Arial", Font.BOLD, 24);
         Font directionFont = new Font("Arial", Font.BOLD, 20);
-
 
         // Create and configure a JLabel to display the queue length
         JTextField queueLengthField = new JTextField();
@@ -231,7 +245,7 @@ public class DataMethod extends JPanel {
         queueLengthField.setForeground(Color.BLACK);
         queueLengthField.setBounds(327, 205, 110, 55);
         queueLengthField.setBackground(Color.decode("#e7e7e7"));
-        queueLengthField.setBorder(BorderFactory.createEmptyBorder());   
+        queueLengthField.setBorder(BorderFactory.createEmptyBorder());
         queueLengthField.setFocusTraversalKeysEnabled(false);
         queueLengthField.setCaretColor(Color.BLACK);
         userInputPanel.add(queueLengthField);
@@ -239,8 +253,10 @@ public class DataMethod extends JPanel {
         // Add DocumentFilter to limit input to 2 digits
         ((AbstractDocument) queueLengthField.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string == null) return;
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
+                if (string == null)
+                    return;
 
                 String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + string;
                 if (newText.matches("\\d{0,2}")) {
@@ -249,8 +265,10 @@ public class DataMethod extends JPanel {
             }
 
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text == null) return;
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                if (text == null)
+                    return;
 
                 String oldText = fb.getDocument().getText(0, fb.getDocument().getLength());
                 String newText = oldText.substring(0, offset) + text + oldText.substring(offset + length);
@@ -266,7 +284,7 @@ public class DataMethod extends JPanel {
         headStartLabelField.setForeground(Color.BLACK);
         headStartLabelField.setBounds(325, 362, 110, 55);
         headStartLabelField.setBackground(Color.decode("#e7e7e7"));
-        headStartLabelField.setBorder(BorderFactory.createEmptyBorder());   
+        headStartLabelField.setBorder(BorderFactory.createEmptyBorder());
         headStartLabelField.setFocusTraversalKeysEnabled(false);
         headStartLabelField.setCaretColor(Color.BLACK);
         userInputPanel.add(headStartLabelField);
@@ -274,8 +292,10 @@ public class DataMethod extends JPanel {
         // Limit input to 3 digits
         ((AbstractDocument) headStartLabelField.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-                if (string == null) return;
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
+                if (string == null)
+                    return;
 
                 String newText = fb.getDocument().getText(0, fb.getDocument().getLength()) + string;
                 if (newText.matches("\\d{0,3}")) {
@@ -284,8 +304,10 @@ public class DataMethod extends JPanel {
             }
 
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-                if (text == null) return;
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
+                if (text == null)
+                    return;
 
                 String oldText = fb.getDocument().getText(0, fb.getDocument().getLength());
                 String newText = oldText.substring(0, offset) + text + oldText.substring(offset + length);
@@ -300,7 +322,7 @@ public class DataMethod extends JPanel {
         directionBox.setForeground(Color.BLACK);
         directionBox.setBounds(315, 514, 145, 68);
         directionBox.setBackground(Color.decode("#e7e7e7"));
-        directionBox.setBorder(BorderFactory.createEmptyBorder());   
+        directionBox.setBorder(BorderFactory.createEmptyBorder());
         directionBox.setFocusTraversalKeysEnabled(false);
         userInputPanel.add(directionBox);
 
@@ -340,8 +362,9 @@ public class DataMethod extends JPanel {
         requestQueueField.getDocument().addDocumentListener(new DocumentListener() {
             private void validateInput() {
                 String text = requestQueueField.getText().trim();
-                if (text.equals("Values are from 0 to 199")) return;
-        
+                if (text.equals("Values are from 0 to 199"))
+                    return;
+
                 String[] tokens = text.split("\\s+");
                 int expectedLength;
                 try {
@@ -350,12 +373,12 @@ public class DataMethod extends JPanel {
                     continueButton.setEnabled(false);
                     return;
                 }
-        
+
                 if (tokens.length != expectedLength) {
                     continueButton.setEnabled(false);
                     return;
                 }
-        
+
                 for (String token : tokens) {
                     try {
                         int num = Integer.parseInt(token);
@@ -368,16 +391,27 @@ public class DataMethod extends JPanel {
                         return;
                     }
                 }
-        
+
                 continueButton.setEnabled(true); // All checks passed
             }
-        
-            @Override public void insertUpdate(DocumentEvent e) { validateInput(); }
-            @Override public void removeUpdate(DocumentEvent e) { validateInput(); }
-            @Override public void changedUpdate(DocumentEvent e) { validateInput(); }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                validateInput();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                validateInput();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                validateInput();
+            }
         });
 
-                // Action: Back to Lobby + restore original background
+        // Action: Back to Lobby + restore original background
         backButton.addActionListener(e -> {
             layout.show(mainPanel, "Lobby");
         });
@@ -386,62 +420,79 @@ public class DataMethod extends JPanel {
             setQueueLengthFromField(queueLengthField);
             setHeadStartFromField(headStartLabelField);
             setDirectionFromBox(directionBox);
-            setRequestQueueFromField(requestQueueField);            
+            setRequestQueueFromField(requestQueueField);
             AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
             mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
             layout.show(mainPanel, "AlgorithmSelection");
         });
-        
+
         mainPanel.add(userInputPanel, "UserInputScreen");
         layout.show(mainPanel, "UserInputScreen");
     }
 
     public void showFileInput() {
-        // Mutable reference for background image
-        final ImageIcon[] backgroundImage = { new ImageIcon(CommonConstants.fileMethodBG) };
-    
+        // Mutable reference for background image - using proper resource loading
+        final ImageIcon[] backgroundImage = { CommonConstants.createImageIcon(CommonConstants.fileMethodBG) };
+
         JPanel fileInputPanel = new JPanel(null) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.drawImage(backgroundImage[0].getImage(), 0, 0, getWidth(), getHeight(), this);
+                if (backgroundImage[0] != null) {
+                    g.drawImage(backgroundImage[0].getImage(), 0, 0, getWidth(), getHeight(), this);
+                } else {
+                    // Fallback if image loading fails
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
             }
         };
         fileInputPanel.setOpaque(false);
-    
-        // Create and configure the "Back" button
-        JButton backButton = createStyledButton(CommonConstants.backDefault,
-                CommonConstants.backHover, CommonConstants.backClick, new Dimension(220, 56));
+
+        // Create and configure the "Back" button using ButtonUtil
+        JButton backButton = createStyledButton(
+                CommonConstants.backDefault,
+                CommonConstants.backHover,
+                CommonConstants.backClick,
+                new Dimension(220, 56));
         backButton.setBounds(37, 625, 220, 56);
         fileInputPanel.add(backButton);
-        
+
         // Create and configure the "Continue" button
-        JButton continueButton = createStyledButton(CommonConstants.continueDefault,
-                CommonConstants.continueHover, CommonConstants.continueClick, new Dimension(220, 56));
+        JButton continueButton = createStyledButton(
+                CommonConstants.continueDefault,
+                CommonConstants.continueHover,
+                CommonConstants.continueClick,
+                new Dimension(220, 56));
         continueButton.setBounds(992, 565, 220, 70);
         continueButton.setEnabled(false);
         fileInputPanel.add(continueButton);
-    
-        // Create and configure the "Generate" button
-        JButton uploadButton = createStyledButton(CommonConstants.uploadDefault,
-                CommonConstants.uploadHover, CommonConstants.uploadClick, new Dimension(220, 56));
-                uploadButton.setBounds(743, 565, 220, 70);
+
+        // Create and configure the "Upload" button
+        JButton uploadButton = createStyledButton(
+                CommonConstants.uploadDefault,
+                CommonConstants.uploadHover,
+                CommonConstants.uploadClick,
+                new Dimension(220, 56));
+        uploadButton.setBounds(743, 565, 220, 70);
         fileInputPanel.add(uploadButton);
-    
+
         // Action: Back to Lobby + restore original background
         backButton.addActionListener(e -> {
-            backgroundImage[0] = new ImageIcon(CommonConstants.randomDataMethodBG);
-            fileInputPanel.repaint();  // Optional if you're navigating away anyway
+            // Use proper resource loading when changing background
+            backgroundImage[0] = CommonConstants.createImageIcon(CommonConstants.fileMethodBG);
+            fileInputPanel.repaint(); // Optional if you're navigating away anyway
             layout.show(mainPanel, "Lobby");
         });
-                // Action: Generate + Change background
+
+        // Action: Upload + Change background
         uploadButton.addActionListener(e -> {
             fileUpload(continueButton, backgroundImage);
-            fileInputPanel.repaint();  // Refresh to apply new background
+            fileInputPanel.repaint(); // Refresh to apply new background
         });
 
         // Font settings
-        Font labelFont = new Font("Arial", Font.BOLD, 22); // Or "Montserrat" if installed
+        Font labelFont = new Font("Arial", Font.BOLD, 22);
         Font textAreaFont = new Font("Arial", Font.BOLD, 24);
 
         // Create and configure a JLabel to display the queue length
@@ -483,14 +534,14 @@ public class DataMethod extends JPanel {
             setQueueLengthFromField(queueLengthLabel);
             setHeadStartFromField(headStartLabel);
             setDirectionFromBox(directionLabel);
-            setRequestQueueFromField(requestQueueArea);  
+            setRequestQueueFromField(requestQueueArea);
             AlgorithmSelection AlgorithmSelectionPanel = new AlgorithmSelection(main, layout, mainPanel, width, height);
             mainPanel.add(AlgorithmSelectionPanel, "AlgorithmSelection");
             layout.show(mainPanel, "AlgorithmSelection");
         });
 
-        mainPanel.add(fileInputPanel, "RandomScreen");
-        layout.show(mainPanel, "RandomScreen");
+        mainPanel.add(fileInputPanel, "FileInputScreen"); // Fixed screen name
+        layout.show(mainPanel, "FileInputScreen");
     }
 
     public void fileUpload(JButton continueButton, ImageIcon[] backgroundImage) {
@@ -503,8 +554,8 @@ public class DataMethod extends JPanel {
             try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
                 String queueLengthStr = reader.readLine(); // line 1
                 String requestQueueStr = reader.readLine(); // line 2
-                String headStartStr = reader.readLine();    // line 3
-                String directionStr = reader.readLine();    // line 4
+                String headStartStr = reader.readLine(); // line 3
+                String directionStr = reader.readLine(); // line 4
 
                 if (queueLengthStr != null && requestQueueStr != null && headStartStr != null && directionStr != null) {
                     int queueLength = Integer.parseInt(queueLengthStr.trim());
@@ -533,12 +584,13 @@ public class DataMethod extends JPanel {
                     queueLengthLabel.setText(String.valueOf(queueLength));
                     headStartLabel.setText(String.valueOf(headStart));
                     directionLabel.setText(direction);
-                
+
                     // Format the queue list without brackets
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < requestQueue.size(); i++) {
                         sb.append(requestQueue.get(i));
-                        if (i != requestQueue.size() - 1) sb.append(" ");
+                        if (i != requestQueue.size() - 1)
+                            sb.append(" ");
                     }
                     requestQueueArea.setText(sb.toString());
 
@@ -554,7 +606,7 @@ public class DataMethod extends JPanel {
             }
         }
     }
-    
+
     // Getter for queue length
     public int getQueueLength() {
         return queueLength;
@@ -645,54 +697,86 @@ public class DataMethod extends JPanel {
         }
     }
 
-    
-
-    //*******************************************************
+    // *******************************************************
     //
-    //                  HELPER METHODS
+    // HELPER METHODS
     //
-    //*******************************************************
+    // *******************************************************
 
-    private static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath, Dimension size) {
+    public static JButton createStyledButton(String defaultIconPath, String hoverIconPath, String clickIconPath,
+            Dimension size) {
         JButton button = new JButton();
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setPreferredSize(size);
 
+        // Use CommonConstants to load the images
         ImageIcon defaultIcon = scaleImage(defaultIconPath, size);
         ImageIcon hoverIcon = scaleImage(hoverIconPath, size);
         ImageIcon clickIcon = scaleImage(clickIconPath, size);
 
-        button.setIcon(defaultIcon);
+        // Set the default icon if available, or add a fallback text
+        if (defaultIcon != null) {
+            button.setIcon(defaultIcon);
+        } else {
+            button.setText("Button");
+            System.err.println("Failed to load button images for: " + defaultIconPath);
+        }
 
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
+        // Only add mouse listeners if we have the hover/click icons
+        if (hoverIcon != null && clickIcon != null) {
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(hoverIcon);
+                    }
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.setIcon(defaultIcon);
-            }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(defaultIcon);
+                    }
+                }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                button.setIcon(clickIcon);
-            }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        button.setIcon(clickIcon);
+                    }
+                }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                button.setIcon(hoverIcon);
-            }
-        });
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (button.isEnabled()) {
+                        if (button.contains(e.getPoint())) {
+                            button.setIcon(hoverIcon);
+                        } else {
+                            button.setIcon(defaultIcon);
+                        }
+                    }
+                }
+            });
+        }
 
         return button;
     }
 
+    /**
+     * Scales an image loaded from resources
+     */
     private static ImageIcon scaleImage(String path, Dimension size) {
-        ImageIcon icon = new ImageIcon(path);
+        // Use CommonConstants to load the image from resources
+        ImageIcon icon = CommonConstants.createImageIcon(path);
+
+        // If the image couldn't be loaded, return null
+        if (icon == null) {
+            return null;
+        }
+
+        // Scale the image
         Image img = icon.getImage().getScaledInstance(size.width, size.height, Image.SCALE_SMOOTH);
         return new ImageIcon(img);
     }
