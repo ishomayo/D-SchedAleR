@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 // Import iText PDF library
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.DocumentException;
 
 public class CombinedSimulationScreen extends JPanel {
     private JPanel mainPanel;
@@ -942,76 +944,35 @@ public class CombinedSimulationScreen extends JPanel {
                 // Capture the entire scrollable content
                 BufferedImage fullCapture = captureEntireContentPanel();
 
-                // Create PDF document - using A4 landscape for better fit
-                Document document = new Document(PageSize.A4.rotate());
+                // Create PDF document with custom dimensions (1165x3155)
+                // Use com.itextpdf.text.Rectangle class for page size
+                com.itextpdf.text.Rectangle customSize = new com.itextpdf.text.Rectangle(1165, 3155);
+                Document document = new Document(customSize);
+
+                // Set margins to zero
+                document.setMargins(0, 0, 0, 0);
+
                 PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
                 document.open();
 
-                // Calculate available space in the document
+                // Convert BufferedImage to bytes for iText
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(fullCapture, "png", baos);
+                byte[] imageBytes = baos.toByteArray();
+
+                // Create iText image
+                com.itextpdf.text.Image pdfImage = com.itextpdf.text.Image.getInstance(imageBytes);
+
+                // Scale the image to fit the page width
                 float documentWidth = document.getPageSize().getWidth() - document.leftMargin()
                         - document.rightMargin();
-                float documentHeight = document.getPageSize().getHeight() - document.topMargin()
-                        - document.bottomMargin();
+                pdfImage.scaleToFit(documentWidth, pdfImage.getHeight());
 
-                // Get dimensions of the full image
-                int imageWidth = fullCapture.getWidth();
-                int imageHeight = fullCapture.getHeight();
+                // Center the image
+                pdfImage.setAlignment(com.itextpdf.text.Image.ALIGN_CENTER);
 
-                // Calculate scaling factor based on width
-                float scaleFactor = documentWidth / imageWidth;
-                int scaledHeight = (int) (imageHeight * scaleFactor);
-
-                // If the scaled image is taller than document height, we need multiple pages
-                if (scaledHeight > documentHeight) {
-                    // Calculate how many pixels of the original image can fit on one page
-                    int pixelsPerPage = (int) (documentHeight / scaleFactor);
-
-                    // Calculate number of pages needed
-                    int totalPages = (int) Math.ceil((double) imageHeight / pixelsPerPage);
-
-                    for (int page = 0; page < totalPages; page++) {
-                        if (page > 0) {
-                            document.newPage(); // Add a new page for subsequent sections
-                        }
-
-                        // Calculate the section of the image to use for this page
-                        int y = page * pixelsPerPage;
-                        int height = Math.min(pixelsPerPage, imageHeight - y);
-
-                        if (height <= 0)
-                            break; // Safety check
-
-                        // Create a sub-image for this page
-                        BufferedImage pageImage = fullCapture.getSubimage(0, y, imageWidth, height);
-
-                        // Convert BufferedImage to bytes for iText
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ImageIO.write(pageImage, "png", baos);
-                        byte[] imageBytes = baos.toByteArray();
-
-                        // Create iText image
-                        com.itextpdf.text.Image pdfImage = com.itextpdf.text.Image.getInstance(imageBytes);
-
-                        // Scale the image to fit the width
-                        pdfImage.scaleToFit(documentWidth, documentHeight);
-
-                        // Center the image
-                        pdfImage.setAlignment(com.itextpdf.text.Image.ALIGN_CENTER);
-
-                        // Add image to document
-                        document.add(pdfImage);
-                    }
-                } else {
-                    // If the content fits on a single page, use the original approach
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ImageIO.write(fullCapture, "png", baos);
-                    byte[] imageBytes = baos.toByteArray();
-
-                    com.itextpdf.text.Image pdfImage = com.itextpdf.text.Image.getInstance(imageBytes);
-                    pdfImage.scaleToFit(documentWidth, documentHeight);
-                    pdfImage.setAlignment(com.itextpdf.text.Image.ALIGN_CENTER);
-                    document.add(pdfImage);
-                }
+                // Add image to document
+                document.add(pdfImage);
 
                 document.close();
                 writer.close();
@@ -1520,9 +1481,6 @@ public class CombinedSimulationScreen extends JPanel {
 
                 // Draw important tick marks
                 drawTickMark(g2d, 0, minPos, maxPos, width, rulerFont);
-                drawTickMark(g2d, 50, minPos, maxPos, width, rulerFont);
-                drawTickMark(g2d, 100, minPos, maxPos, width, rulerFont);
-                drawTickMark(g2d, 150, minPos, maxPos, width, rulerFont);
                 drawTickMark(g2d, MAX_DISK_SIZE, minPos, maxPos, width, rulerFont);
 
                 // Scale positions to fit the graph based on the dynamic scale

@@ -989,9 +989,6 @@ public class CSCANSimulation extends JPanel {
 
             // Always draw min, max and important values
             drawTickMark(g2d, 0, minPos, maxPos, width, rulerFont);
-            drawTickMark(g2d, 50, minPos, maxPos, width, rulerFont);
-            drawTickMark(g2d, 100, minPos, maxPos, width, rulerFont);
-            drawTickMark(g2d, 150, minPos, maxPos, width, rulerFont);
             drawTickMark(g2d, MAX_DISK_SIZE, minPos, maxPos, width, rulerFont);
 
             if (positions.isEmpty())
